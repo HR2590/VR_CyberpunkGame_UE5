@@ -6,6 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include <EngineFwd.h>
 #include <VREditorInteractor.h>
+#include <UserSettings/EnhancedInputUserSettings.h>
 #include "VRPawn.generated.h"
 
 UCLASS()
@@ -35,10 +36,22 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Controllers Mesh")
 	UStaticMeshComponent* AnchorPointRight;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputMappingContext* InputMappingContext;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* TeleportAction;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void HandleTeleport();
+
+private:
+	const float DISTANCE = 1000;
+	APlayerController* PlayerController;
 
 };
 

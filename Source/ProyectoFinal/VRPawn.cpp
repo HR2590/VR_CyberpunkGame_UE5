@@ -1,6 +1,8 @@
 #include "VRPawn.h"
 #include "Camera/CameraComponent.h"
 #include "MotionControllerComponent.h"
+#include <EnhancedInputComponent.h>
+#include <EnhancedInputSubsystems.h>
 
 AVRPawn::AVRPawn()
 {
@@ -30,6 +32,17 @@ AVRPawn::AVRPawn()
 void AVRPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	PlayerController = Cast<APlayerController>(GetController());
+
+	if (PlayerController)
+	{
+		UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		if (Subsystem)
+		{
+			Subsystem->AddMappingContext(InputMappingContext, 0);
+		}
+	}
 }
 
 void AVRPawn::Tick(float DeltaTime)
@@ -40,4 +53,41 @@ void AVRPawn::Tick(float DeltaTime)
 void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AVRPawn::HandleTeleport);
+	}
+}
+
+void AVRPawn::HandleTeleport()
+{
+	if (PlayerController) 
+	{
+		FVector Location;
+		FRotator Rotation;
+
+		PlayerController->GetPlayerViewPoint(Location, Rotation);
+		FVector EndLocation = Location + (Rotation.Vector() * DISTANCE);
+
+		FHitResult HitResult;
+		FCollisionQueryParams TraceParams;
+		TraceParams.bTraceComplex = false;
+		TraceParams.AddIgnoredActor(this);
+
+		bool raycastHit = GetWorld()->LineTraceSingleByChannel(
+			HitResult,
+			Location,
+			EndLocation,
+			ECC_Visibility,
+			TraceParams
+		);
+
+		if (raycastHit) 
+		{
+			DrawDebugSphere(GetWorld(), HitResult.Location, 10.f, 12, FColor::Red, false, 1000);
+			FVector TeleportLocation = FVector(HitResult.Location.X, HitResult.Location.Y, this->GetActorLocation().Z);
+			this->SetActorLocation(TeleportLocation);
+		}
+	}
 }
