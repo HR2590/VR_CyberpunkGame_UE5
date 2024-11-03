@@ -42,15 +42,23 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* TeleportAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* GrabAction;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	void HandleTeleport();
+	void PickupObject(float _distance);
+
+	void HandleTeleport(float _distance);
+
+	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& HitResult);
 
 private:
-	const float DISTANCE = 1000;
+	const float DISTANCE_TELEPORT = 1000;
+	const float DISTANCE_GRAB = 1000;
 	APlayerController* PlayerController;
 
 };

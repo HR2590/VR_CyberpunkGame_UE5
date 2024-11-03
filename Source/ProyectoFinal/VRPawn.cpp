@@ -56,11 +56,26 @@ void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AVRPawn::HandleTeleport);
+		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AVRPawn::HandleTeleport, DISTANCE_TELEPORT);
+		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &AVRPawn::PickupObject, DISTANCE_GRAB);
 	}
 }
 
-void AVRPawn::HandleTeleport()
+void AVRPawn::PickupObject(float _distance)
+{
+	FVector Location;
+	FRotator Rotation;
+
+	PlayerController->GetPlayerViewPoint(Location, Rotation);
+	FVector EndLocation = Location + (Rotation.Vector() * _distance);
+	FHitResult HitResult;
+
+	bool raycastHit = PerformRaycast(Location, EndLocation, HitResult);
+
+
+}
+
+void AVRPawn::HandleTeleport(float _distance)
 {
 	if (PlayerController) 
 	{
@@ -68,20 +83,10 @@ void AVRPawn::HandleTeleport()
 		FRotator Rotation;
 
 		PlayerController->GetPlayerViewPoint(Location, Rotation);
-		FVector EndLocation = Location + (Rotation.Vector() * DISTANCE);
-
+		FVector EndLocation = Location + (Rotation.Vector() * _distance);
 		FHitResult HitResult;
-		FCollisionQueryParams TraceParams;
-		TraceParams.bTraceComplex = false;
-		TraceParams.AddIgnoredActor(this);
 
-		bool raycastHit = GetWorld()->LineTraceSingleByChannel(
-			HitResult,
-			Location,
-			EndLocation,
-			ECC_Visibility,
-			TraceParams
-		);
+		bool raycastHit = PerformRaycast(Location, EndLocation, HitResult);
 
 		if (raycastHit) 
 		{
@@ -90,4 +95,21 @@ void AVRPawn::HandleTeleport()
 			this->SetActorLocation(TeleportLocation);
 		}
 	}
+}
+
+bool AVRPawn::PerformRaycast(FVector _location, FVector _endLocation, FHitResult& _hitResult)
+{
+	FCollisionQueryParams TraceParams;
+	TraceParams.bTraceComplex = false;
+	TraceParams.AddIgnoredActor(this);
+
+	bool raycastHit = GetWorld()->LineTraceSingleByChannel(
+		_hitResult,
+		_location,
+		_endLocation,
+		ECC_Visibility,
+		TraceParams
+	);
+
+	return raycastHit;
 }
