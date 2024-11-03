@@ -59,8 +59,10 @@ public:
 private:
 	const float DISTANCE_TELEPORT = 1000;
 	const float DISTANCE_GRAB = 1000;
+	const FName PICKABLE_TAG = "Pickable";
 	APlayerController* PlayerController;
 
+	bool ObjectGrabbed;
 };
 
 

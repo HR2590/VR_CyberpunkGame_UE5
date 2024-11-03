@@ -63,16 +63,42 @@ void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AVRPawn::PickupObject(float _distance)
 {
-	FVector Location;
-	FRotator Rotation;
+	FVector Location = L_MotionController->GetComponentLocation();
 
-	PlayerController->GetPlayerViewPoint(Location, Rotation);
-	FVector EndLocation = Location + (Rotation.Vector() * _distance);
+	FVector EndLocation = Location + (L_MotionController->GetForwardVector() * _distance);
 	FHitResult HitResult;
 
 	bool raycastHit = PerformRaycast(Location, EndLocation, HitResult);
 
+	if (raycastHit) 
+	{
+		if (!ObjectGrabbed) 
+		{
+			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+			AActor* HitActor = HitResult.GetActor();
 
+			if (HitComponent->IsSimulatingPhysics() && HitActor->ActorHasTag(PICKABLE_TAG))
+			{
+				HitComponent->SetSimulatePhysics(false);
+				HitActor->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
+
+				ObjectGrabbed = true;
+			}
+		}
+		else
+		{
+			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+			AActor* HitActor = HitResult.GetActor();
+
+			if (HitActor && HitComponent)
+			{
+				HitActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+				HitComponent->SetSimulatePhysics(true);
+
+				ObjectGrabbed = false;
+			}
+		}
+	}
 }
 
 void AVRPawn::HandleTeleport(float _distance)
