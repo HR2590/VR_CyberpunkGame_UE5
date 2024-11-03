@@ -56,6 +56,9 @@ void AVRPawn::Tick(float DeltaTime)
 		FRotator TargetRotation = L_MotionController->GetComponentRotation();
 
 		CaughtActor->SetActorLocationAndRotation(TargetLocation, TargetRotation);
+
+		UE_LOG(LogTemp, Warning, TEXT("Controller Pos: %s"), *TargetLocation.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Caught Actor Position: %s"), *CaughtActor->GetActorLocation().ToString());
 	}
 }
 
