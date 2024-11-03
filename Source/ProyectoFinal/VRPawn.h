@@ -45,6 +45,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* GrabAction;
 
+	AActor* CaughtActor;
+
 public:
 	virtual void Tick(float DeltaTime) override;
 

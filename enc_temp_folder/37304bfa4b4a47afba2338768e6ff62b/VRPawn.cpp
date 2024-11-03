@@ -49,7 +49,6 @@ void AVRPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//test
 	if (ObjectGrabbed && CaughtActor)
 	{
 		FVector TargetLocation = L_MotionController->GetComponentLocation();
