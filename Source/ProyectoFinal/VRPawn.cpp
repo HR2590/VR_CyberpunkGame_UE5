@@ -49,16 +49,12 @@ void AVRPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//test
-	if (ObjectGrabbed && CaughtActor)
+	if (ObjectGrabbed && CaughtComponent)
 	{
 		FVector TargetLocation = L_MotionController->GetComponentLocation();
 		FRotator TargetRotation = L_MotionController->GetComponentRotation();
 
-		CaughtActor->SetActorLocationAndRotation(TargetLocation, TargetRotation);
-
-		UE_LOG(LogTemp, Warning, TEXT("Controller Pos: %s"), *TargetLocation.ToString());
-		UE_LOG(LogTemp, Warning, TEXT("Caught Actor Position: %s"), *CaughtActor->GetActorLocation().ToString());
+		CaughtComponent->SetWorldLocationAndRotation(TargetLocation, TargetRotation);
 	}
 }
 
@@ -87,14 +83,13 @@ void AVRPawn::PickupObject(float _distance)
 		if (!ObjectGrabbed) 
 		{
 			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
-			AActor* HitActor = HitResult.GetActor();
 
-			if (HitComponent->IsSimulatingPhysics() && HitActor->ActorHasTag(PICKABLE_TAG))
+			if (HitComponent->IsSimulatingPhysics() && HitComponent->ComponentHasTag(PICKABLE_TAG))
 			{
-				HitActor->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
+				HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
 				HitComponent->SetSimulatePhysics(false);
 
-				CaughtActor = HitActor;
+				CaughtComponent = HitComponent;
 
 				ObjectGrabbed = true;
 			}
@@ -102,11 +97,10 @@ void AVRPawn::PickupObject(float _distance)
 		else
 		{
 			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
-			AActor* HitActor = HitResult.GetActor();
 
-			if (HitActor && HitComponent)
+			if (HitComponent)
 			{
-				HitActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+				HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 				HitComponent->SetSimulatePhysics(true);
 
 				ObjectGrabbed = false;

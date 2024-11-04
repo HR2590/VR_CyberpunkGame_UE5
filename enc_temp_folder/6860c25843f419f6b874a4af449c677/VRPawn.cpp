@@ -49,12 +49,17 @@ void AVRPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (ObjectGrabbed && CaughtActor)
+	//test
+	if (ObjectGrabbed && CaughtComponent)
 	{
 		FVector TargetLocation = L_MotionController->GetComponentLocation();
 		FRotator TargetRotation = L_MotionController->GetComponentRotation();
 
-		CaughtActor->SetActorLocationAndRotation(TargetLocation, TargetRotation);
+		CaughtComponent->SetWorldLocationAndRotation(TargetLocation, TargetRotation);
+
+		/*UE_LOG(LogTemp, Warning, TEXT("Controller Pos: %s"), *TargetLocation.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Caught Actor Position: %s"), *CaughtActor->GetActorLocation().ToString());
+		UE_LOG(LogTemp, Warning, TEXT("Caught Actor Name: %s"), *CaughtActor->GetFName().ToString());*/
 	}
 }
 
@@ -85,12 +90,12 @@ void AVRPawn::PickupObject(float _distance)
 			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
 			AActor* HitActor = HitResult.GetActor();
 
-			if (HitComponent->IsSimulatingPhysics() && HitActor->ActorHasTag(PICKABLE_TAG))
+			if (HitComponent->IsSimulatingPhysics() && HitComponent->ComponentHasTag(PICKABLE_TAG))
 			{
-				HitActor->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
+				HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
 				HitComponent->SetSimulatePhysics(false);
 
-				CaughtActor = HitActor;
+				CaughtComponent = HitComponent;
 
 				ObjectGrabbed = true;
 			}
