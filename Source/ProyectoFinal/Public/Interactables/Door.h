@@ -8,14 +8,6 @@
 class UStaticMeshComponent;
 class UBoxComponent;
 
-UENUM(BlueprintType)
-enum class EDoorType : uint8
-{
-	RDT_Slide UMETA(DisplayName = "Slide"),
-	RDT_RotateRight UMETA(DisplayName = "Slide"),
-	RDT_RotateLeft UMETA(DisplayName = "Slide")
-};
-
 UCLASS()
 class PROYECTOFINAL_API ADoor : public AActor
 {
@@ -27,10 +19,27 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	bool bIsOpen = false;
+	bool bUpIsOpen = false;
+	bool bDownIsOpen = false;
+	bool bIsOpening = false;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	FVector UpTargetLocation = FVector(0, 0, 200);
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float UpMoveSpeed = 2.f;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	FVector DownTargetLocation = FVector(0, 0, -50);;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float DownMoveSpeed = 1.f;
 
 	UPROPERTY(EditAnywhere, Category = "Door")
-	UStaticMeshComponent* MovableMesh;
+	UStaticMeshComponent* UpMovableMesh;
+
+	UPROPERTY(EditAnywhere, Category = "Door")
+	UStaticMeshComponent* DownMovableMesh;
 
 	UPROPERTY(EditAnywhere, Category = "Door")
 	UStaticMeshComponent* StaticMesh;
@@ -38,11 +47,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Door")
 	UBoxComponent* KeyInteractBoxVolume;
 
-	UPROPERTY(EditAnywhere, Category = "Door")
-	TSubclassOf<AActor> EnabledClass;
-
-	UPROPERTY(EditAnywhere)
-	EDoorType DoorType = EDoorType::RDT_Slide;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	USoundBase* OpenSoundEffect;
 	
 	UFUNCTION()
 	void OverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
@@ -51,7 +57,12 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere)
+	AActor* ActorDoorKey;
+
 private:
 	UFUNCTION()
-	void OpenDoor();
+	void OpenUpMesh(float DeltaTime);
+	void OpenDownMesh(float DeltaTime);
+	
 };
