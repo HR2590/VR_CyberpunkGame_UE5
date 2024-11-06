@@ -3,13 +3,14 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interactable.h"
 #include "Door.generated.h"
 
 class UStaticMeshComponent;
 class UBoxComponent;
 
 UCLASS()
-class PROYECTOFINAL_API ADoor : public AActor
+class PROYECTOFINAL_API ADoor : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 
@@ -19,50 +20,41 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	bool bUpIsOpen = false;
-	bool bDownIsOpen = false;
-	bool bIsOpening = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool bIsOpened = false;
 
 	UPROPERTY(EditAnywhere, Category = "Movement")
-	FVector UpTargetLocation = FVector(0, 0, 200);
+	float DeltaTimeHandler = 0.1f;
 
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	float UpMoveSpeed = 2.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float UpMoveSpeed = 210.f;
 
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	FVector DownTargetLocation = FVector(0, 0, -50);;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float DownMoveSpeed = 50.f;
 
-	UPROPERTY(EditAnywhere, Category = "Movement")
-	float DownMoveSpeed = 1.f;
-
-	UPROPERTY(EditAnywhere, Category = "Door")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door")
 	UStaticMeshComponent* UpMovableMesh;
 
-	UPROPERTY(EditAnywhere, Category = "Door")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door")
 	UStaticMeshComponent* DownMovableMesh;
 
 	UPROPERTY(EditAnywhere, Category = "Door")
 	UStaticMeshComponent* StaticMesh;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Door")
-	UBoxComponent* KeyInteractBoxVolume;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	UPROPERTY(EditAnywhere, Category = "Sound")
 	USoundBase* OpenSoundEffect;
-	
-	UFUNCTION()
-	void OverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void Open();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void Close();
 	
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere)
-	AActor* ActorDoorKey;
+	virtual void Interaction_Implementation() override;
 
 private:
-	UFUNCTION()
-	void OpenUpMesh(float DeltaTime);
-	void OpenDownMesh(float DeltaTime);
 	
 };
