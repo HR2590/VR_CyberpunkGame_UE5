@@ -9,6 +9,14 @@
 class UStaticMeshComponent;
 class UBoxComponent;
 
+/**
+ *
+ *	This class is a Door that implements IInteractable and the method
+ *	Interaction_Implementation opens and close the door
+ *
+ *
+ ***/
+
 UCLASS()
 class PROYECTOFINAL_API ADoor : public AActor, public IInteractable
 {
@@ -23,14 +31,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	bool bIsOpened = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool bIsOpeningOrClosing = false;
+
 	UPROPERTY(EditAnywhere, Category = "Movement")
 	float DeltaTimeHandler = 0.1f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float UpMoveSpeed = 210.f;
+	float UpZDistance = 210.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
-	float DownMoveSpeed = 50.f;
+	float DownZDistance = 50.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door")
 	UStaticMeshComponent* UpMovableMesh;
@@ -44,9 +55,11 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Sound")
 	USoundBase* OpenSoundEffect;
 
+	/*The movment its handled in the blueprint*/
 	UFUNCTION(BlueprintImplementableEvent)
 	void Open();
 
+	/*The movment its handled in the blueprint*/
 	UFUNCTION(BlueprintImplementableEvent)
 	void Close();
 	

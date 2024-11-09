@@ -7,6 +7,12 @@
 
 class UBoxComponent;
 
+/*
+ * This actor, works as a trigger for a other actor @InteractableActor if this actor implements the interface IInteractable
+ * When a designated actor @ActorDoorKey begin overlaps the box component @KeyInteractBoxVolume
+ * 
+ */
+
 UCLASS()
 class PROYECTOFINAL_API AVolumeKeyInteractor : public AActor
 {

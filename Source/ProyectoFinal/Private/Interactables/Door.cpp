@@ -37,12 +37,17 @@ void ADoor::Tick(float DeltaTime)
 void ADoor::Interaction_Implementation()
 {
 	IInteractable::Interaction_Implementation();
+
+	if (bIsOpeningOrClosing) return;
+	
 	if (bIsOpened)
 	{
+		bIsOpeningOrClosing = true;
 		Close();
 	}
 	else
 	{
+		bIsOpeningOrClosing = true;
 		Open();
 	}
 }
