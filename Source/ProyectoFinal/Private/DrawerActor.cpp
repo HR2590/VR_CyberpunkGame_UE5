@@ -57,6 +57,6 @@ void ADrawerActor::SetDrawerBoundaries(FVector _start, FVector _end)
 void ADrawerActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-    SetDrawerBoundaries(FVector(0, 0, 0), FVector(0, 30, 0));
+    /*SetDrawerBoundaries(FVector(0, 0, 0), FVector(0, 30, 0));*/
 }
 

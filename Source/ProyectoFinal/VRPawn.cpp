@@ -3,6 +3,7 @@
 #include "MotionControllerComponent.h"
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
+#include <DrawerActor.h>
 
 AVRPawn::AVRPawn()
 {
@@ -59,6 +60,8 @@ void AVRPawn::Tick(float DeltaTime)
 	if (DrawerGrabbed && CaughtComponent) 
 	{
 		FVector lerpPosition = FMath::VInterpTo(CaughtComponent->GetRelativeLocation(), DrawerVector, DeltaTime, 2.f);
+
+		UE_LOG(LogTemp, Warning, TEXT("info: Y=%f"), lerpPosition.Y);
 		CaughtComponent->SetRelativeLocation(lerpPosition);
 	}
 }
@@ -77,60 +80,84 @@ void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AVRPawn::PickupObject(float _distance)
 {
 	FVector Location = L_MotionController->GetComponentLocation();
-
 	FVector EndLocation = Location + (L_MotionController->GetForwardVector() * _distance);
 	FHitResult HitResult;
 
 	bool raycastHit = PerformRaycast(Location, EndLocation, HitResult);
+	DrawerGrabbed = false;
 
-	if (DrawerGrabbed)
-		DrawerGrabbed = false;
-
-	if (raycastHit) 
+	if (raycastHit)
 	{
-		if (!ObjectGrabbed) 
+		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+
+		if (!ObjectGrabbed && HitComponent)
 		{
-			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
-
-			if (HitComponent->ComponentHasTag(PICKABLE_TAG)) 
-			{
-				CaughtComponent = HitComponent;
-
-				if (HitComponent->IsSimulatingPhysics())
-				{
-					HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
-					HitComponent->SetSimulatePhysics(false);
-
-					ObjectGrabbed = true;
-				}
-				else //<- fer que sigui un tag de drawer
-				{
-					FVector localPosition = CaughtComponent->GetRelativeLocation();
-					DrawerVector = FVector(0, 0, 0);
-
-					if (FMath::IsNearlyEqual(localPosition.Y, 30.0f)) //que agafi les boundaries del script del drawerActor
-						DrawerVector.Y = 0.0f;
-					else if (FMath::IsNearlyEqual(localPosition.Y, 0.0f)) //que agafi les boundaries del script del drawerActor
-						DrawerVector.Y = 30.0f;
-
-					DrawerGrabbed = true;
-				}
-			}
+			HandleObjectPickup(HitComponent);
 		}
-		else
+		else if (ObjectGrabbed && HitComponent)
 		{
-			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
-
-			if (HitComponent && ObjectGrabbed)
-			{
-				HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-				HitComponent->SetSimulatePhysics(true);
-
-				ObjectGrabbed = false;
-			}
+			ReleaseObject(HitComponent);
 		}
 	}
 }
+
+void AVRPawn::HandleObjectPickup(UPrimitiveComponent* HitComponent)
+{
+	if (HitComponent->ComponentHasTag(PICKABLE_TAG))
+	{
+		PickupPhysicsObject(HitComponent);
+	}
+	else if (HitComponent->ComponentHasTag(DRAWER_TAG))
+	{
+		PickupDrawerObject(HitComponent);
+	}
+}
+
+void AVRPawn::PickupPhysicsObject(UPrimitiveComponent* HitComponent)
+{
+	CaughtComponent = HitComponent;
+	if (HitComponent->IsSimulatingPhysics())
+	{
+		HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
+		HitComponent->SetSimulatePhysics(false);
+		ObjectGrabbed = true;
+	}
+}
+
+void AVRPawn::PickupDrawerObject(UPrimitiveComponent* HitComponent)
+{
+	CaughtComponent = HitComponent;
+	FVector localPosition = CaughtComponent->GetRelativeLocation();
+	DrawerVector = FVector(0, 0, 0);
+
+	AActor* OwnerActor = CaughtComponent->GetOwner();
+
+	if (OwnerActor && OwnerActor->IsA<ADrawerActor>())
+	{
+		ADrawerActor* drawerObjectClass = Cast<ADrawerActor>(OwnerActor);
+
+		float minBoundary = drawerObjectClass->ClosePosition;
+		float maxBoundary = drawerObjectClass->OpenPosition;
+
+		if (FMath::IsNearlyEqual(localPosition.Y, minBoundary))
+			DrawerVector.Y = maxBoundary;
+		else if (FMath::IsNearlyEqual(localPosition.Y, maxBoundary))
+			DrawerVector.Y = minBoundary;
+
+		DrawerGrabbed = true;
+	}
+}
+
+void AVRPawn::ReleaseObject(UPrimitiveComponent* HitComponent)
+{
+	if (ObjectGrabbed && HitComponent)
+	{
+		HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+		HitComponent->SetSimulatePhysics(true);
+		ObjectGrabbed = false;
+	}
+}
+
 
 void AVRPawn::HandleTeleport(float _distance)
 {

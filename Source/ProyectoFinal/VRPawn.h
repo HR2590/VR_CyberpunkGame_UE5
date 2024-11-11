@@ -54,6 +54,14 @@ public:
 
 	void PickupObject(float _distance);
 
+	void HandleObjectPickup(UPrimitiveComponent* HitComponent);
+
+	void PickupPhysicsObject(UPrimitiveComponent* HitComponent);
+
+	void PickupDrawerObject(UPrimitiveComponent* HitComponent);
+
+	void ReleaseObject(UPrimitiveComponent* HitComponent);
+
 	void HandleTeleport(float _distance);
 
 	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& HitResult);
@@ -62,6 +70,7 @@ private:
 	const float DISTANCE_TELEPORT = 1000;
 	const float DISTANCE_GRAB = 1000;
 	const FName PICKABLE_TAG = "Pickable";
+	const FName DRAWER_TAG = "Drawer";
 	APlayerController* PlayerController;
 
 	bool ObjectGrabbed;

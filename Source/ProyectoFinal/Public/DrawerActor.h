@@ -16,6 +16,12 @@ public:
 	ADrawerActor();
 	void SetDrawerBoundaries(FVector _start, FVector _end);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drawer Settings")
+	float ClosePosition = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drawer Settings")
+	float OpenPosition = 30.f;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
