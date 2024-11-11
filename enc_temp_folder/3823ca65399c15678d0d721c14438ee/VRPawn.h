@@ -66,7 +66,6 @@ private:
 
 	bool ObjectGrabbed;
 	bool DrawerGrabbed;
-	FVector DrawerVector;
 };
 
 

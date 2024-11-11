@@ -49,17 +49,23 @@ void AVRPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//test
 	if (ObjectGrabbed && CaughtComponent)
 	{
 		FVector TargetLocation = L_MotionController->GetComponentLocation();
 		FRotator TargetRotation = L_MotionController->GetComponentRotation();
 
 		CaughtComponent->SetWorldLocationAndRotation(TargetLocation, TargetRotation);
+	}
+	if (DrawerGrabbed && CaughtComponent) 
+	{
+		FVector direction = CaughtComponent->GetComponentLocation() - this->GetActorLocation();
+		float ClampedX = FMath::Clamp(direction.X, -1, 1);
+		float ClampedY = FMath::Clamp(direction.Y, -1, 1);
+		float ClampedZ = FMath::Clamp(direction.Z, -1, 1);
+		direction = FVector(ClampedX, ClampedY, ClampedZ);
 
-		/*UE_LOG(LogTemp, Warning, TEXT("Controller Pos: %s"), *TargetLocation.ToString());
-		UE_LOG(LogTemp, Warning, TEXT("Caught Actor Position: %s"), *CaughtActor->GetActorLocation().ToString());
-		UE_LOG(LogTemp, Warning, TEXT("Caught Actor Name: %s"), *CaughtActor->GetFName().ToString());*/
+		UE_LOG(LogTemp, Warning, TEXT("direction Vector: X=%f, Y=%f, Z=%f"), direction.X, direction.Y, direction.Z);
+		CaughtComponent->SetRelativeLocation(direction);
 	}
 }
 
@@ -88,26 +94,29 @@ void AVRPawn::PickupObject(float _distance)
 		if (!ObjectGrabbed) 
 		{
 			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
-			AActor* HitActor = HitResult.GetActor();
 
-			if (HitComponent->IsSimulatingPhysics() && HitComponent->ComponentHasTag(PICKABLE_TAG))
+			if (HitComponent->ComponentHasTag(PICKABLE_TAG)) 
 			{
-				HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
-				HitComponent->SetSimulatePhysics(false);
-
 				CaughtComponent = HitComponent;
 
-				ObjectGrabbed = true;
+				if (HitComponent->IsSimulatingPhysics())
+				{
+					HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
+					HitComponent->SetSimulatePhysics(false);
+
+					ObjectGrabbed = true;
+				}
+				else 
+					DrawerGrabbed = true;
 			}
 		}
 		else
 		{
 			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
-			AActor* HitActor = HitResult.GetActor();
 
-			if (HitActor && HitComponent)
+			if (HitComponent && ObjectGrabbed)
 			{
-				HitActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+				HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 				HitComponent->SetSimulatePhysics(true);
 
 				ObjectGrabbed = false;

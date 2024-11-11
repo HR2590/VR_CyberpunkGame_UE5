@@ -56,6 +56,11 @@ void AVRPawn::Tick(float DeltaTime)
 
 		CaughtComponent->SetWorldLocationAndRotation(TargetLocation, TargetRotation);
 	}
+	if (DrawerGrabbed && CaughtComponent) 
+	{
+		FVector lerpPosition = FMath::VInterpTo(CaughtComponent->GetRelativeLocation(), DrawerVector, DeltaTime, 2.f);
+		CaughtComponent->SetRelativeLocation(lerpPosition);
+	}
 }
 
 void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -78,27 +83,45 @@ void AVRPawn::PickupObject(float _distance)
 
 	bool raycastHit = PerformRaycast(Location, EndLocation, HitResult);
 
+	if (DrawerGrabbed)
+		DrawerGrabbed = false;
+
 	if (raycastHit) 
 	{
 		if (!ObjectGrabbed) 
 		{
 			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
 
-			if (HitComponent->IsSimulatingPhysics() && HitComponent->ComponentHasTag(PICKABLE_TAG))
+			if (HitComponent->ComponentHasTag(PICKABLE_TAG)) 
 			{
-				HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
-				HitComponent->SetSimulatePhysics(false);
-
 				CaughtComponent = HitComponent;
 
-				ObjectGrabbed = true;
+				if (HitComponent->IsSimulatingPhysics())
+				{
+					HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
+					HitComponent->SetSimulatePhysics(false);
+
+					ObjectGrabbed = true;
+				}
+				else //<- fer que sigui un tag de drawer
+				{
+					FVector localPosition = CaughtComponent->GetRelativeLocation();
+					DrawerVector = FVector(0, 0, 0);
+
+					if (FMath::IsNearlyEqual(localPosition.Y, 30.0f)) //que agafi les boundaries del script del drawerActor
+						DrawerVector.Y = 0.0f;
+					else if (FMath::IsNearlyEqual(localPosition.Y, 0.0f)) //que agafi les boundaries del script del drawerActor
+						DrawerVector.Y = 30.0f;
+
+					DrawerGrabbed = true;
+				}
 			}
 		}
 		else
 		{
 			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
 
-			if (HitComponent)
+			if (HitComponent && ObjectGrabbed)
 			{
 				HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 				HitComponent->SetSimulatePhysics(true);
