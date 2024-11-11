@@ -4,6 +4,9 @@
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
 
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/GameplayStaticsTypes.h"
+
 AVRPawn::AVRPawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -64,7 +67,8 @@ void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AVRPawn::HandleTeleport, DISTANCE_TELEPORT);
+		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AVRPawn::PerformParabolicRaycast);
+		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Completed, this, &AVRPawn::HandleTeleport);
 		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &AVRPawn::PickupObject, DISTANCE_GRAB);
 	}
 }
@@ -109,25 +113,12 @@ void AVRPawn::PickupObject(float _distance)
 	}
 }
 
-void AVRPawn::HandleTeleport(float _distance)
+void AVRPawn::HandleTeleport()
 {
-	if (PlayerController) 
+	if (bTeleport)
 	{
-		FVector Location;
-		FRotator Rotation;
-
-		PlayerController->GetPlayerViewPoint(Location, Rotation);
-		FVector EndLocation = Location + (Rotation.Vector() * _distance);
-		FHitResult HitResult;
-
-		bool raycastHit = PerformRaycast(Location, EndLocation, HitResult);
-
-		if (raycastHit) 
-		{
-			DrawDebugSphere(GetWorld(), HitResult.Location, 10.f, 12, FColor::Red, false, 1000);
-			FVector TeleportLocation = FVector(HitResult.Location.X, HitResult.Location.Y, this->GetActorLocation().Z);
-			this->SetActorLocation(TeleportLocation);
-		}
+		SetActorLocation(TeleportLocation + FVector(0.f, 0.f, GetActorLocation().Z));
+		bTeleport = false;
 	}
 }
 
@@ -146,4 +137,30 @@ bool AVRPawn::PerformRaycast(FVector _location, FVector _endLocation, FHitResult
 	);
 
 	return raycastHit;
+}
+
+void AVRPawn::PerformParabolicRaycast()
+{
+	FPredictProjectilePathParams PathParams;
+	PathParams.StartLocation = L_MotionController->GetComponentLocation();
+	PathParams.LaunchVelocity = L_MotionController->GetForwardVector() * ParabolicVelocity;
+	PathParams.bTraceWithCollision = true;
+	PathParams.ProjectileRadius = ProjectileRadius;
+	PathParams.MaxSimTime = MaxSimTime;
+	PathParams.SimFrequency = SimFrequency;
+	PathParams.OverrideGravityZ = OverrideGravityZ;  
+	PathParams.TraceChannel = ECC_Visibility;
+	PathParams.DrawDebugType = EDrawDebugTrace::ForOneFrame;
+	PathParams.ActorsToIgnore.Add(this);
+
+	FPredictProjectilePathResult PathResult;
+	bool bHit = UGameplayStatics::PredictProjectilePath(GetWorld(), PathParams, PathResult);
+
+	if (bHit)
+	{
+		TeleportLocation = PathResult.HitResult.ImpactPoint;
+		DrawDebugSphere(GetWorld(), TeleportLocation, 10.0f, 12, FColor::Red, false);
+		bTeleport = true;
+	}
+	
 }

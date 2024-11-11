@@ -54,9 +54,22 @@ public:
 
 	void PickupObject(float _distance);
 
-	void HandleTeleport(float _distance);
+	void HandleTeleport();
 
 	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& HitResult);
+
+	void PerformParabolicRaycast();
+
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float ParabolicVelocity = 1000.0f;
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float ProjectileRadius = 5.0f;
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float MaxSimTime = 3.0f;
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float SimFrequency = 15.0f;
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float OverrideGravityZ = -980.0f;
 
 private:
 	const float DISTANCE_TELEPORT = 1000;
@@ -65,6 +78,9 @@ private:
 	APlayerController* PlayerController;
 
 	bool ObjectGrabbed;
+
+	FVector TeleportLocation;
+	bool bTeleport = false;
 };
 
 
