@@ -74,6 +74,8 @@ private:
 	APlayerController* PlayerController;
 
 	bool ObjectGrabbed;
+	bool DrawerGrabbed;
+	FVector DrawerVector;
 };
 
 

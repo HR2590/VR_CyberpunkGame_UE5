@@ -18,45 +18,37 @@ void ADrawerActor::BeginPlay()
 	
 }
 
-FVector ClampPosition(const FVector& _position, const FVector& _minPosition, const FVector& _maxPosition)
-{
-    return FVector(
-        FMath::Clamp(_position.X, _minPosition.X, _maxPosition.X),
-        FMath::Clamp(_position.Y, _minPosition.Y, _maxPosition.Y),
-        FMath::Clamp(_position.Z, _minPosition.Z, _maxPosition.Z)
-    );
-}
-
-void ADrawerActor::SetDrawerBoundaries(FVector _start, FVector _end) 
-{
-
-    TArray<UPrimitiveComponent*> parentComponents;
-    this->GetComponents<UPrimitiveComponent>(parentComponents);
-
-    for (UPrimitiveComponent* parentComponent : parentComponents)
-    {
-        if (parentComponent)
-        {
-            TArray<USceneComponent*> attachedChildren = parentComponent->GetAttachChildren();
-
-            for (USceneComponent* childComponent : attachedChildren)
-            {
-                if (UPrimitiveComponent* primitiveChild = Cast<UPrimitiveComponent>(childComponent))
-                {
-                    FVector clampedVector = ClampPosition(primitiveChild->GetRelativeLocation(), _start, _end);
-                    /*UE_LOG(LogTemp, Warning, TEXT("Clamped Vector: X=%f, Y=%f, Z=%f"), clampedVector.X, clampedVector.Y, clampedVector.Z);*/
-
-                    primitiveChild->SetRelativeLocation(clampedVector);
-                }
-            }
-        }
-    }
-}
-
 // Called every frame
 void ADrawerActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-    /*SetDrawerBoundaries(FVector(0, 0, 0), FVector(0, 30, 0));*/
+
+	if (DrawerCaught)
+	{
+		FVector lerpPosition = FMath::VInterpTo(DrawerCaught->GetRelativeLocation(), DrawerMovementVector, DeltaTime, 2.f);
+
+		UE_LOG(LogTemp, Warning, TEXT("info: Y=%f"), lerpPosition.Y);
+		DrawerCaught->SetRelativeLocation(lerpPosition);
+	}
+}
+
+void ADrawerActor::CallDrawerAction(UPrimitiveComponent* HitComponent)
+{
+	DrawerCaught = HitComponent;
+	FVector localPosition = DrawerCaught->GetRelativeLocation();
+	DrawerMovementVector = FVector(0, 0, 0);
+
+	AActor* OwnerActor = DrawerCaught->GetOwner();
+
+	if (OwnerActor && OwnerActor->IsA<ADrawerActor>())
+	{
+		float minBoundary = ClosePosition;
+		float maxBoundary = OpenPosition;
+
+		if (FMath::IsNearlyEqual(localPosition.Y, minBoundary))
+			DrawerMovementVector.Y = maxBoundary;
+		else if (FMath::IsNearlyEqual(localPosition.Y, maxBoundary))
+			DrawerMovementVector.Y = minBoundary;
+	}
 }
 

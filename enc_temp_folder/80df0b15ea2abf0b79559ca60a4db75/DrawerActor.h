@@ -14,6 +14,7 @@ class PROYECTOFINAL_API ADrawerActor : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ADrawerActor();
+	void SetDrawerBoundaries(FVector _start, FVector _end);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drawer Settings")
 	float ClosePosition = 0.f;
@@ -29,11 +30,5 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	void CallDrawerAction(UPrimitiveComponent* HitComponent);
-
-private:
-	UPrimitiveComponent* DrawerCaught;
-	FVector DrawerMovementVector;
 
 };

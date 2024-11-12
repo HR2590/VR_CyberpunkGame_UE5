@@ -57,6 +57,13 @@ void AVRPawn::Tick(float DeltaTime)
 
 		CaughtComponent->SetWorldLocationAndRotation(TargetLocation, TargetRotation);
 	}
+	if (DrawerGrabbed && CaughtComponent) 
+	{
+		FVector lerpPosition = FMath::VInterpTo(CaughtComponent->GetRelativeLocation(), DrawerVector, DeltaTime, 2.f);
+
+		UE_LOG(LogTemp, Warning, TEXT("info: Y=%f"), lerpPosition.Y);
+		CaughtComponent->SetRelativeLocation(lerpPosition);
+	}
 }
 
 void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -77,6 +84,7 @@ void AVRPawn::PickupObject(float _distance)
 	FHitResult HitResult;
 
 	bool raycastHit = PerformRaycast(Location, EndLocation, HitResult);
+	DrawerGrabbed = false;
 
 	if (raycastHit)
 	{
@@ -118,12 +126,25 @@ void AVRPawn::PickupPhysicsObject(UPrimitiveComponent* HitComponent)
 
 void AVRPawn::PickupDrawerObject(UPrimitiveComponent* HitComponent)
 {
-	AActor* OwnerActor = HitComponent->GetOwner();
+	CaughtComponent = HitComponent;
+	FVector localPosition = CaughtComponent->GetRelativeLocation();
+	DrawerVector = FVector(0, 0, 0);
+
+	AActor* OwnerActor = CaughtComponent->GetOwner();
 
 	if (OwnerActor && OwnerActor->IsA<ADrawerActor>())
 	{
 		ADrawerActor* drawerObjectClass = Cast<ADrawerActor>(OwnerActor);
-		drawerObjectClass->CallDrawerAction(HitComponent);
+
+		float minBoundary = drawerObjectClass->ClosePosition;
+		float maxBoundary = drawerObjectClass->OpenPosition;
+
+		if (FMath::IsNearlyEqual(localPosition.Y, minBoundary))
+			DrawerVector.Y = maxBoundary;
+		else if (FMath::IsNearlyEqual(localPosition.Y, maxBoundary))
+			DrawerVector.Y = minBoundary;
+
+		DrawerGrabbed = true;
 	}
 }
 
