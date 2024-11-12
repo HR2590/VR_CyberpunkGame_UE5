@@ -36,4 +36,6 @@ private:
 	UPrimitiveComponent* DrawerCaught;
 	FVector DrawerMovementVector;
 
+	const float LERP_SPEED = 2.f;
+
 };

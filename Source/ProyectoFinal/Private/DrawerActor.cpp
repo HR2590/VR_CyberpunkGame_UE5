@@ -25,9 +25,7 @@ void ADrawerActor::Tick(float DeltaTime)
 
 	if (DrawerCaught)
 	{
-		FVector lerpPosition = FMath::VInterpTo(DrawerCaught->GetRelativeLocation(), DrawerMovementVector, DeltaTime, 2.f);
-
-		UE_LOG(LogTemp, Warning, TEXT("info: Y=%f"), lerpPosition.Y);
+		FVector lerpPosition = FMath::VInterpTo(DrawerCaught->GetRelativeLocation(), DrawerMovementVector, DeltaTime, LERP_SPEED);
 		DrawerCaught->SetRelativeLocation(lerpPosition);
 	}
 }
