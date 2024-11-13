@@ -34,7 +34,7 @@ void AMovingPlatform::BeginPlay()
 void AMovingPlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+//Usar Timer
 	if (ActiveTriggers > 0)
 	{
 		if (HasAuthority())
