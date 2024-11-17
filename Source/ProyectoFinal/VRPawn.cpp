@@ -6,6 +6,9 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStaticsTypes.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+#include "Components/SplineComponent.h"
 
 AVRPawn::AVRPawn()
 {
@@ -30,6 +33,9 @@ AVRPawn::AVRPawn()
 
 	AnchorPointRight = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Anchor_Point_Right"));
 	AnchorPointRight->SetupAttachment(R_MotionController);
+
+	ParabolicEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ParabolicEffect"));
+	ParabolicEffect->SetupAttachment(L_MotionController);
 }
 
 void AVRPawn::BeginPlay()
@@ -113,14 +119,7 @@ void AVRPawn::PickupObject(float _distance)
 	}
 }
 
-void AVRPawn::HandleTeleport()
-{
-	if (bTeleport)
-	{
-		SetActorLocation(TeleportLocation + FVector(0.f, 0.f, GetActorLocation().Z));
-		bTeleport = false;
-	}
-}
+
 
 bool AVRPawn::PerformRaycast(FVector _location, FVector _endLocation, FHitResult& _hitResult)
 {
@@ -156,11 +155,24 @@ void AVRPawn::PerformParabolicRaycast()
 	FPredictProjectilePathResult PathResult;
 	bool bHit = UGameplayStatics::PredictProjectilePath(GetWorld(), PathParams, PathResult);
 
+	ParabolicEffect->Activate();
+	ParabolicEffect->SetVectorParameter(FName("Start"), PathParams.StartLocation);
+	ParabolicEffect->SetVectorParameter(FName("End"), PathResult.HitResult.ImpactPoint);
+
 	if (bHit)
 	{
 		TeleportLocation = PathResult.HitResult.ImpactPoint;
-		DrawDebugSphere(GetWorld(), TeleportLocation, 10.0f, 12, FColor::Red, false);
 		bTeleport = true;
 	}
-	
+
+}
+
+void AVRPawn::HandleTeleport()
+{
+	if (bTeleport)
+	{
+		SetActorLocation(TeleportLocation + FVector(0.f, 0.f, GetActorLocation().Z));
+		bTeleport = false;
+		ParabolicEffect->Deactivate();
+	}
 }

@@ -9,6 +9,9 @@
 #include <UserSettings/EnhancedInputUserSettings.h>
 #include "VRPawn.generated.h"
 
+class UNiagaraComponent;
+class USplineComponent;
+
 UCLASS()
 class PROYECTOFINAL_API AVRPawn : public APawn
 {
@@ -70,6 +73,10 @@ public:
 	float SimFrequency = 15.0f;
 	UPROPERTY(EditAnywhere, Category = "ParabolicData")
 	float OverrideGravityZ = -980.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicVisuals")
+	UNiagaraComponent* ParabolicEffect;
+
 
 private:
 	const float DISTANCE_TELEPORT = 1000;
