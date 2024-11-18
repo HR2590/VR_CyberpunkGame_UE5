@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interactables/Interactable.h"
 #include "DrawerActor.generated.h"
 
 UCLASS()
-class PROYECTOFINAL_API ADrawerActor : public AActor
+class PROYECTOFINAL_API ADrawerActor : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 	
@@ -29,8 +30,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
+	virtual void InteractionHit_Implementation(UPrimitiveComponent* HitComponent) override;
 	void CallDrawerAction(UPrimitiveComponent* HitComponent);
+
 
 private:
 	UPrimitiveComponent* DrawerCaught;

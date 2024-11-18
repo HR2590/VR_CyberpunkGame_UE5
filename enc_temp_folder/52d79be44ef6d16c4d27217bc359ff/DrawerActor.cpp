@@ -30,11 +30,6 @@ void ADrawerActor::Tick(float DeltaTime)
 	}
 }
 
-void ADrawerActor::InteractionHit_Implementation(UPrimitiveComponent* HitComponent)
-{
-	CallDrawerAction(HitComponent);
-}
-
 void ADrawerActor::CallDrawerAction(UPrimitiveComponent* HitComponent)
 {
 	DrawerCaught = HitComponent;
@@ -54,4 +49,10 @@ void ADrawerActor::CallDrawerAction(UPrimitiveComponent* HitComponent)
 			DrawerMovementVector.Y = minBoundary;
 	}
 }
+
+//void ADrawerActor::Interaction_Implementation(UPrimitiveComponent* HitComponent)
+//{
+//	//IInteractable::Interaction(HitComponent);
+//	CallDrawerAction(HitComponent);
+//}
 

@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interactables/Interactable.h"
 #include "DrawerActor.generated.h"
 
 UCLASS()
-class PROYECTOFINAL_API ADrawerActor : public AActor
+class PROYECTOFINAL_API ADrawerActor : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
 	ADrawerActor();
-	void SetDrawerBoundaries(FVector _start, FVector _end);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Drawer Settings")
 	float ClosePosition = 0.f;
@@ -30,5 +30,14 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	/*virtual void Interaction_Implementation(UPrimitiveComponent* HitComponent) override;*/
+	void CallDrawerAction(UPrimitiveComponent* HitComponent);
+
+
+private:
+	UPrimitiveComponent* DrawerCaught;
+	FVector DrawerMovementVector;
+
+	const float LERP_SPEED = 2.f;
 
 };
