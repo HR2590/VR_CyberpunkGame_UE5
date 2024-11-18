@@ -1,50 +1,53 @@
 
 
 #include "ProyectoFinal/Public/Interactables/Door.h"
-#include "Components/BoxComponent.h"
+#include "GeometryCollection/GeometryCollectionSimulationTypes.h"
+#include "Kismet/GameplayStatics.h" 
 
 ADoor::ADoor()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	
+	RootComponent =	CreateDefaultSubobject<USceneComponent>("Root");
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	RootComponent = StaticMesh;
+	StaticMesh->SetupAttachment(RootComponent);
 
-	MovableMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MovableMesh"));
-	MovableMesh->SetupAttachment(RootComponent);
+	UpMovableMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MovableMesh"));
+	UpMovableMesh->SetupAttachment(StaticMesh);
 
-	KeyInteractBoxVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("KeyInteractBoxVolume"));
-	KeyInteractBoxVolume->SetupAttachment(MovableMesh);
+	DownMovableMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("DownMovableMesh"));
+	DownMovableMesh->SetupAttachment(StaticMesh);
+
+	
 }
 
 void ADoor::BeginPlay()
 {
 	Super::BeginPlay();
-
-	KeyInteractBoxVolume->OnComponentBeginOverlap.AddDynamic(this,&ADoor::OverlapBegin);
-
+	
 }
 
-void ADoor::OverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if (bIsOpen) return;
-	OpenDoor();
-}
 
 void ADoor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-void ADoor::OpenDoor()
+void ADoor::Interaction_Implementation()
 {
-	if (DoorType == EDoorType::RDT_Slide)
+	IInteractable::Interaction_Implementation();
+
+	if (bIsOpeningOrClosing) return;
+	
+	if (bIsOpened)
 	{
-		MovableMesh->AddRelativeLocation(FVector(0,	100, 0));
-		//TODO MOVIMIENTO UNIFORME
+		bIsOpeningOrClosing = true;
+		Close();
 	}
-
-	bIsOpen = true;
+	else
+	{
+		bIsOpeningOrClosing = true;
+		Open();
+	}
 }
-
