@@ -3,21 +3,22 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interactable.h"
 #include "Door.generated.h"
 
 class UStaticMeshComponent;
 class UBoxComponent;
 
-UENUM(BlueprintType)
-enum class EDoorType : uint8
-{
-	RDT_Slide UMETA(DisplayName = "Slide"),
-	RDT_RotateRight UMETA(DisplayName = "Slide"),
-	RDT_RotateLeft UMETA(DisplayName = "Slide")
-};
+/**
+ *
+ *	This class is a Door that implements IInteractable and the method
+ *	Interaction_Implementation opens and close the door
+ *
+ *
+ ***/
 
 UCLASS()
-class PROYECTOFINAL_API ADoor : public AActor
+class PROYECTOFINAL_API ADoor : public AActor, public IInteractable
 {
 	GENERATED_BODY()
 
@@ -27,31 +28,46 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	bool bIsOpen = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool bIsOpened = false;
 
-	UPROPERTY(EditAnywhere, Category = "Door")
-	UStaticMeshComponent* MovableMesh;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool bIsOpeningOrClosing = false;
+
+	UPROPERTY(EditAnywhere, Category = "Movement")
+	float DeltaTimeHandler = 0.1f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float UpZDistance = 210.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Movement")
+	float DownZDistance = 50.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door")
+	UStaticMeshComponent* UpMovableMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door")
+	UStaticMeshComponent* DownMovableMesh;
 
 	UPROPERTY(EditAnywhere, Category = "Door")
 	UStaticMeshComponent* StaticMesh;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Door")
-	UBoxComponent* KeyInteractBoxVolume;
 
-	UPROPERTY(EditAnywhere, Category = "Door")
-	TSubclassOf<AActor> EnabledClass;
+	UPROPERTY(EditAnywhere, Category = "Sound")
+	USoundBase* OpenSoundEffect;
 
-	UPROPERTY(EditAnywhere)
-	EDoorType DoorType = EDoorType::RDT_Slide;
-	
-	UFUNCTION()
-	void OverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+	/*The movment its handled in the blueprint*/
+	UFUNCTION(BlueprintImplementableEvent)
+	void Open();
 
+	/*The movment its handled in the blueprint*/
+	UFUNCTION(BlueprintImplementableEvent)
+	void Close();
 	
 public:
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void Interaction_Implementation() override;
+
 private:
-	UFUNCTION()
-	void OpenDoor();
+	
 };
