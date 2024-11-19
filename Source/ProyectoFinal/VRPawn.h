@@ -9,6 +9,9 @@
 #include <UserSettings/EnhancedInputUserSettings.h>
 #include "VRPawn.generated.h"
 
+class UNiagaraComponent;
+class USplineComponent;
+
 UCLASS()
 class PROYECTOFINAL_API AVRPawn : public APawn
 {
@@ -19,6 +22,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	//BASE VR SET
+	UPROPERTY()
 	USceneComponent* VRCore;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Set")
@@ -35,7 +41,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Controllers Mesh")
 	UStaticMeshComponent* AnchorPointRight;
+	//BASE VR SET
 
+	//INPUT SYSTEM
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputMappingContext* InputMappingContext;
 
@@ -44,9 +52,41 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* GrabAction;
+	//INPUT SYSTEM
+	
+	// PARABOLIC TELEPORT FUNCTIONS
+	void HandleTeleport();
+	void PerformParabolicRaycast();
+	// PARABOLIC TELEPORT FUNCTIONS
 
 	UPrimitiveComponent* CaughtComponent;
 
+	// PARABOLIC TELEPORT VARIABLES
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float ParabolicVelocity = 1000.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float ProjectileRadius = 5.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float MaxSimTime = 3.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float SimFrequency = 15.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float OverrideGravityZ = -980.0f;
+
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	bool bDebug = false;
+
+	UPROPERTY(EditAnywhere, Category = "ParabolicVisuals")
+	UNiagaraComponent* ParabolicEffect;
+
+	UPROPERTY(EditAnywhere, Category = "ParabolicVisuals")
+	UNiagaraComponent* TeleportEffect;
+	// PARABOLIC TELEPORT VARIABLES
+	
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -74,6 +114,9 @@ private:
 	APlayerController* PlayerController;
 
 	bool ObjectGrabbed;
+
+	FVector TeleportLocation;
+	bool bTeleport = false;
 };
 
 

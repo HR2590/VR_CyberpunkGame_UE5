@@ -5,6 +5,12 @@
 #include <EnhancedInputSubsystems.h>
 #include <DrawerActor.h>
 
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/GameplayStaticsTypes.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+#include "Components/SplineComponent.h"
+
 AVRPawn::AVRPawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -28,6 +34,12 @@ AVRPawn::AVRPawn()
 
 	AnchorPointRight = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Anchor_Point_Right"));
 	AnchorPointRight->SetupAttachment(R_MotionController);
+
+	ParabolicEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ParabolicEffect"));
+	ParabolicEffect->SetupAttachment(RootComponent);
+
+	TeleportEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("TeleportEffect"));
+	TeleportEffect->SetupAttachment(RootComponent);
 }
 
 void AVRPawn::BeginPlay()
@@ -65,7 +77,8 @@ void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(PlayerInputComponent))
 	{
-		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AVRPawn::HandleTeleport, DISTANCE_TELEPORT);
+		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AVRPawn::PerformParabolicRaycast);
+		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Completed, this, &AVRPawn::HandleTeleport);
 		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &AVRPawn::PickupObject, DISTANCE_GRAB);
 	}
 }
@@ -73,6 +86,7 @@ void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AVRPawn::PickupObject(float _distance)
 {
 	FVector Location = L_MotionController->GetComponentLocation();
+
 	FVector EndLocation = Location + (L_MotionController->GetForwardVector() * _distance);
 	FHitResult HitResult;
 
@@ -172,4 +186,50 @@ bool AVRPawn::PerformRaycast(FVector _location, FVector _endLocation, FHitResult
 	);
 
 	return raycastHit;
+}
+
+void AVRPawn::PerformParabolicRaycast()
+{
+	//Prepare all the varables for the projectile path
+	FPredictProjectilePathParams PathParams;
+	PathParams.StartLocation = L_MotionController->GetComponentLocation();
+	PathParams.LaunchVelocity = L_MotionController->GetForwardVector() * ParabolicVelocity;
+	PathParams.bTraceWithCollision = true;
+	PathParams.ProjectileRadius = ProjectileRadius;
+	PathParams.MaxSimTime = MaxSimTime;
+	PathParams.SimFrequency = SimFrequency;
+	PathParams.OverrideGravityZ = OverrideGravityZ;  
+	PathParams.TraceChannel = ECC_Visibility;
+	PathParams.DrawDebugType = bDebug ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
+	PathParams.ActorsToIgnore.Add(this);
+
+	FPredictProjectilePathResult PathResult;
+	bool bHit = UGameplayStatics::PredictProjectilePath(GetWorld(), PathParams, PathResult);
+	
+	// If hit succesfull, we set the varable to telepor location
+	if (bHit)
+	{
+		ParabolicEffect->Activate();
+		ParabolicEffect->SetVectorParameter(FName("Start"), PathParams.StartLocation);
+		ParabolicEffect->SetVectorParameter(FName("End"), PathResult.HitResult.ImpactPoint);
+
+		TeleportEffect->Activate();
+		TeleportEffect->SetWorldLocation(PathResult.HitResult.ImpactPoint);
+		
+		TeleportLocation = PathResult.HitResult.ImpactPoint;
+		bTeleport = true;
+	}
+
+}
+
+void AVRPawn::HandleTeleport()
+{
+	// if we can teleport we teleport to the location
+	if (bTeleport)
+	{
+		SetActorLocation(TeleportLocation + FVector(0.f, 0.f, GetActorLocation().Z));
+		bTeleport = false;
+		ParabolicEffect->DeactivateImmediate();
+		TeleportEffect->DeactivateImmediate();
+	}
 }
