@@ -35,7 +35,10 @@ AVRPawn::AVRPawn()
 	AnchorPointRight->SetupAttachment(R_MotionController);
 
 	ParabolicEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("ParabolicEffect"));
-	ParabolicEffect->SetupAttachment(L_MotionController);
+	ParabolicEffect->SetupAttachment(RootComponent);
+
+	TeleportEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("TeleportEffect"));
+	TeleportEffect->SetupAttachment(RootComponent);
 }
 
 void AVRPawn::BeginPlay()
@@ -112,7 +115,6 @@ void AVRPawn::PickupObject(float _distance)
 			{
 				HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 				HitComponent->SetSimulatePhysics(true);
-
 				ObjectGrabbed = false;
 			}
 		}
@@ -140,6 +142,7 @@ bool AVRPawn::PerformRaycast(FVector _location, FVector _endLocation, FHitResult
 
 void AVRPawn::PerformParabolicRaycast()
 {
+	//Prepare all the varables for the projectile path
 	FPredictProjectilePathParams PathParams;
 	PathParams.StartLocation = L_MotionController->GetComponentLocation();
 	PathParams.LaunchVelocity = L_MotionController->GetForwardVector() * ParabolicVelocity;
@@ -149,18 +152,22 @@ void AVRPawn::PerformParabolicRaycast()
 	PathParams.SimFrequency = SimFrequency;
 	PathParams.OverrideGravityZ = OverrideGravityZ;  
 	PathParams.TraceChannel = ECC_Visibility;
-	PathParams.DrawDebugType = EDrawDebugTrace::ForOneFrame;
+	PathParams.DrawDebugType = bDebug ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 	PathParams.ActorsToIgnore.Add(this);
 
 	FPredictProjectilePathResult PathResult;
 	bool bHit = UGameplayStatics::PredictProjectilePath(GetWorld(), PathParams, PathResult);
-
-	ParabolicEffect->Activate();
-	ParabolicEffect->SetVectorParameter(FName("Start"), PathParams.StartLocation);
-	ParabolicEffect->SetVectorParameter(FName("End"), PathResult.HitResult.ImpactPoint);
-
+	
+	// If hit succesfull, we set the varable to telepor location
 	if (bHit)
 	{
+		ParabolicEffect->Activate();
+		ParabolicEffect->SetVectorParameter(FName("Start"), PathParams.StartLocation);
+		ParabolicEffect->SetVectorParameter(FName("End"), PathResult.HitResult.ImpactPoint);
+
+		TeleportEffect->Activate();
+		TeleportEffect->SetWorldLocation(PathResult.HitResult.ImpactPoint);
+		
 		TeleportLocation = PathResult.HitResult.ImpactPoint;
 		bTeleport = true;
 	}
@@ -169,10 +176,12 @@ void AVRPawn::PerformParabolicRaycast()
 
 void AVRPawn::HandleTeleport()
 {
+	// if we can teleport we teleport to the location
 	if (bTeleport)
 	{
 		SetActorLocation(TeleportLocation + FVector(0.f, 0.f, GetActorLocation().Z));
 		bTeleport = false;
-		ParabolicEffect->Deactivate();
+		ParabolicEffect->DeactivateImmediate();
+		TeleportEffect->DeactivateImmediate();
 	}
 }

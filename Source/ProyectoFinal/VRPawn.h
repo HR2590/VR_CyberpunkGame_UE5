@@ -22,6 +22,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	//BASE VR SET
+	UPROPERTY()
 	USceneComponent* VRCore;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Set")
@@ -38,7 +41,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Controllers Mesh")
 	UStaticMeshComponent* AnchorPointRight;
+	//BASE VR SET
 
+	//INPUT SYSTEM
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputMappingContext* InputMappingContext;
 
@@ -47,36 +52,49 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* GrabAction;
+	//INPUT SYSTEM
+	
+	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& HitResult);
+
+	// PARABOLIC TELEPORT FUNCTIONS
+	void HandleTeleport();
+	void PerformParabolicRaycast();
+	// PARABOLIC TELEPORT FUNCTIONS
 
 	UPrimitiveComponent* CaughtComponent;
 
+	// PARABOLIC TELEPORT VARIABLES
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float ParabolicVelocity = 1000.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float ProjectileRadius = 5.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float MaxSimTime = 3.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float SimFrequency = 15.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float OverrideGravityZ = -980.0f;
+
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	bool bDebug = false;
+
+	UPROPERTY(EditAnywhere, Category = "ParabolicVisuals")
+	UNiagaraComponent* ParabolicEffect;
+
+	UPROPERTY(EditAnywhere, Category = "ParabolicVisuals")
+	UNiagaraComponent* TeleportEffect;
+	// PARABOLIC TELEPORT VARIABLES
+	
 public:
 	virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void PickupObject(float _distance);
-
-	void HandleTeleport();
-
-	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& HitResult);
-
-	void PerformParabolicRaycast();
-
-	UPROPERTY(EditAnywhere, Category = "ParabolicData")
-	float ParabolicVelocity = 1000.0f;
-	UPROPERTY(EditAnywhere, Category = "ParabolicData")
-	float ProjectileRadius = 5.0f;
-	UPROPERTY(EditAnywhere, Category = "ParabolicData")
-	float MaxSimTime = 3.0f;
-	UPROPERTY(EditAnywhere, Category = "ParabolicData")
-	float SimFrequency = 15.0f;
-	UPROPERTY(EditAnywhere, Category = "ParabolicData")
-	float OverrideGravityZ = -980.0f;
-	
-	UPROPERTY(EditAnywhere, Category = "ParabolicVisuals")
-	UNiagaraComponent* ParabolicEffect;
-
 
 private:
 	const float DISTANCE_TELEPORT = 1000;
