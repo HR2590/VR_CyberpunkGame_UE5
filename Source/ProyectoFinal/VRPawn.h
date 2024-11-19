@@ -102,8 +102,6 @@ public:
 
 	void ReleaseObject(UPrimitiveComponent* HitComponent);
 
-	void HandleTeleport(float _distance);
-
 	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& HitResult);
 
 private:

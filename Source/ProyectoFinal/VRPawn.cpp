@@ -148,29 +148,6 @@ void AVRPawn::ReleaseObject(UPrimitiveComponent* HitComponent)
 	}
 }
 
-
-void AVRPawn::HandleTeleport(float _distance)
-{
-	if (PlayerController) 
-	{
-		FVector Location;
-		FRotator Rotation;
-
-		PlayerController->GetPlayerViewPoint(Location, Rotation);
-		FVector EndLocation = Location + (Rotation.Vector() * _distance);
-		FHitResult HitResult;
-
-		bool raycastHit = PerformRaycast(Location, EndLocation, HitResult);
-
-		if (raycastHit) 
-		{
-			DrawDebugSphere(GetWorld(), HitResult.Location, 10.f, 12, FColor::Red, false, 1000);
-			FVector TeleportLocation = FVector(HitResult.Location.X, HitResult.Location.Y, this->GetActorLocation().Z);
-			this->SetActorLocation(TeleportLocation);
-		}
-	}
-}
-
 bool AVRPawn::PerformRaycast(FVector _location, FVector _endLocation, FHitResult& _hitResult)
 {
 	FCollisionQueryParams TraceParams;
