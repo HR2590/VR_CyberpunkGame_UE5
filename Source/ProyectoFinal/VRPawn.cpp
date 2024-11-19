@@ -121,11 +121,7 @@ void AVRPawn::PickupDrawerObject(UPrimitiveComponent* HitComponent)
 	AActor* OwnerActor = HitComponent->GetOwner();
 
 	if (OwnerActor && OwnerActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
-	{
-		//ADrawerActor* drawerObjectClass = Cast<ADrawerActor>(OwnerActor);
-		//drawerObjectClass->CallDrawerAction(HitComponent);
 		IInteractable::Execute_InteractionHit(OwnerActor, HitComponent);
-	}
 }
 
 void AVRPawn::ReleaseObject(UPrimitiveComponent* HitComponent)
