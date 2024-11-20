@@ -169,8 +169,8 @@ void AVRPawn::PerformParabolicRaycast()
 {
 	//Prepare all the varables for the projectile path
 	FPredictProjectilePathParams PathParams;
-	PathParams.StartLocation = L_MotionController->GetComponentLocation();
-	PathParams.LaunchVelocity = L_MotionController->GetForwardVector() * ParabolicVelocity;
+	PathParams.StartLocation = R_MotionController->GetComponentLocation();
+	PathParams.LaunchVelocity = R_MotionController->GetForwardVector() * ParabolicVelocity;
 	PathParams.bTraceWithCollision = true;
 	PathParams.ProjectileRadius = ProjectileRadius;
 	PathParams.MaxSimTime = MaxSimTime;
