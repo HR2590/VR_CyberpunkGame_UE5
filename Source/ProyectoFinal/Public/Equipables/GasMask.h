@@ -18,15 +18,20 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	
 
 private:
-	UFUNCTION()
-	void HandleOverlap(AActor* OverlappedActor, AActor* OtherActor);
 
+	//UFUNCTION()
+	//void HandleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	//			   FVector NormalImpulse, const FHitResult& Hit);
+
+	void CheckEquipCondition();
 	void EquipMask();
 
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent* ProximitySphere;
+	
 
 	bool bIsEquipped;
 };
