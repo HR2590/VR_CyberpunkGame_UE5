@@ -7,7 +7,10 @@
 #include <EngineFwd.h>
 #include <VREditorInteractor.h>
 #include <UserSettings/EnhancedInputUserSettings.h>
+#include "Components/SphereComponent.h"
+#include "Equipables/GasMask.h"
 #include "VRPawn.generated.h"
+
 
 UCLASS()
 class PROYECTOFINAL_API AVRPawn : public APawn
@@ -62,7 +65,10 @@ private:
 	const float DISTANCE_TELEPORT = 1000;
 	const float DISTANCE_GRAB = 1000;
 	const FName PICKABLE_TAG = "Pickable";
+	const FName EQUIPPABLE_TAG = "Equippable";
 	APlayerController* PlayerController;
+
+	AGasMask* EquippedMask = nullptr;
 
 	bool ObjectGrabbed;
 };

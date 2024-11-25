@@ -1,12 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/SphereComponent.h"
 #include "GasMask.generated.h"
-
-class USphereComponent;
 
 UCLASS()
 class PROYECTOFINAL_API AGasMask : public AActor
@@ -18,20 +15,26 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
-	
 
-private:
-
-	//UFUNCTION()
-	//void HandleHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	//			   FVector NormalImpulse, const FHitResult& Hit);
-
-	void CheckEquipCondition();
-	void EquipMask();
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEquip();
 
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent* ProximitySphere;
+
+	
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void EquipAction();
 	
 
+	UPROPERTY(VisibleAnywhere)
+	UStaticMeshComponent* MaskMesh;
+
+	UPROPERTY(EditAnywhere)
 	bool bIsEquipped;
+
+	UPROPERTY(EditAnywhere)
+	USkeletalMeshComponent* PlayerFace; // Referencia al componente del jugador
+
 };
