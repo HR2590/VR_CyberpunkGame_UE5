@@ -1,8 +1,7 @@
-#include "VRPawn.generated.h"
-#include "Equipables/GasMask.h"
+#include "Equipables/Equippable.h"
 
 
-AGasMask::AGasMask()
+AEquippable::AEquippable()
 {
     PrimaryActorTick.bCanEverTick = true;
 
@@ -17,7 +16,7 @@ AGasMask::AGasMask()
     ProximitySphere->SetCollisionProfileName(TEXT("OverlapAll"));  // Configura el perfil de colisión
 }
 
-void AGasMask::BeginPlay()
+void AEquippable::BeginPlay()
 {
     Super::BeginPlay();
 }

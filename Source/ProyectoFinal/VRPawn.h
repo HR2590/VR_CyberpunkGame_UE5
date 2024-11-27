@@ -8,7 +8,7 @@
 #include <VREditorInteractor.h>
 #include <UserSettings/EnhancedInputUserSettings.h>
 #include "Components/SphereComponent.h"
-#include "Equipables/GasMask.h"
+#include "Equipables/Equippable.h"
 #include "VRPawn.generated.h"
 
 
@@ -49,6 +49,7 @@ protected:
 	UInputAction* GrabAction;
 
 	UPrimitiveComponent* CaughtComponent;
+ 
 
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -68,9 +69,10 @@ private:
 	const FName EQUIPPABLE_TAG = "Equippable";
 	APlayerController* PlayerController;
 
-	AGasMask* EquippedMask = nullptr;
+	AEquippable* EquippedMask = nullptr;
 
 	bool ObjectGrabbed;
+	bool ObjectEquipped;
 };
 
 

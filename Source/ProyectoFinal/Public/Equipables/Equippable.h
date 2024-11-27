@@ -3,15 +3,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
-#include "GasMask.generated.h"
+#include "Equippable.generated.h"
 
 UCLASS()
-class PROYECTOFINAL_API AGasMask : public AActor
+class PROYECTOFINAL_API AEquippable : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	AGasMask();
+	AEquippable();
 
 protected:
 	virtual void BeginPlay() override;

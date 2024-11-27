@@ -4,7 +4,7 @@
 #include <EnhancedInputComponent.h>
 #include <EnhancedInputSubsystems.h>
 
-#include "Equipables/GasMask.h"
+#include "Equipables/Equippable.h"
 
 AVRPawn::AVRPawn()
 {
@@ -29,7 +29,6 @@ AVRPawn::AVRPawn()
 
 	AnchorPointRight = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Anchor_Point_Right"));
 	AnchorPointRight->SetupAttachment(R_MotionController);
-	
 	
 }
 
@@ -98,6 +97,7 @@ void AVRPawn::PickupObject(float _distance)
 				ObjectGrabbed = true;
 			}else if(HitComponent->IsSimulatingPhysics()==false && HitComponent->ComponentHasTag(EQUIPPABLE_TAG))
 			{
+				HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 				HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 				HitComponent->SetSimulatePhysics(false);
 
@@ -110,16 +110,17 @@ void AVRPawn::PickupObject(float _distance)
 		{
 			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
 
-			if (HitComponent && HitComponent->ComponentHasTag(EQUIPPABLE_TAG))
+			if (HitComponent && HitComponent->ComponentHasTag(EQUIPPABLE_TAG) && !ObjectEquipped)
 			{
-				EquippedMask = Cast<AGasMask>(HitComponent->GetOwner());
+				EquippedMask = Cast<AEquippable>(HitComponent->GetOwner());
 
 					HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+			
 					HitComponent->AttachToComponent(VRCamera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 					HitComponent->SetSimulatePhysics(false);
 					EquippedMask->EquipAction();
-					HitComponent->SetHiddenInGame(true);
-				
+
+					ObjectEquipped = true;
 					ObjectGrabbed = false;
 				
 			}else if (HitComponent)
@@ -127,6 +128,7 @@ void AVRPawn::PickupObject(float _distance)
 				HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 				HitComponent->SetSimulatePhysics(true);
 
+				ObjectEquipped = false;
 				ObjectGrabbed = false;
 			}
 		}
