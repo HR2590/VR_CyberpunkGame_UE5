@@ -25,17 +25,21 @@ void ALaserGunActor::BeginPlay()
 			ShootPivot = Child;
 		}
 	}
+
+	ShootWeapon(10000);
 }
 
 void ALaserGunActor::ShootWeapon(float _distance)
 {
+	_distance = -_distance;
+
 	FVector Location = ShootPivot->GetComponentLocation();
 
 	FVector EndLocation = Location + (ShootPivot->GetForwardVector() * _distance);
 	FHitResult HitResult;
 
 	if (ShootEffect) 
-		ShootEffect->Activate();
+		ActivateRayEffect(ShootEffect, PARTICLES_TIMER);
 
 	FVector DestinationVectorAux;
 
@@ -49,8 +53,31 @@ void ALaserGunActor::ShootWeapon(float _distance)
 	else
 		DestinationVectorAux = EndLocation;
 	
-	ShootEffect->SetVectorParameter(TEXT("BeamEnd"), DestinationVectorAux);
+	ShootEffect->SetVectorParameter(TEXT("Beam End"), DestinationVectorAux);
 }
+
+void ALaserGunActor::ActivateRayEffect(UNiagaraComponent* _particleSystem, float _deactivateDelay)
+{
+	if (_particleSystem)
+	{
+		_particleSystem->Activate();
+
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(
+			TimerHandle,
+			FTimerDelegate::CreateLambda([_particleSystem]()
+				{
+					if (_particleSystem)
+					{
+						_particleSystem->Deactivate();
+					}
+				}),
+			_deactivateDelay,
+			false
+		);
+	}
+}
+
 
 //that should be converted into a template
 bool ALaserGunActor::PerformRaycast(FVector _location, FVector _endLocation, FHitResult& _hitResult)

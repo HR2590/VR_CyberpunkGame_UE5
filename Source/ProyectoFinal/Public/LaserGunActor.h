@@ -27,7 +27,10 @@ public:
 public:	
 	virtual void BeginPlay() override;
 	void ShootWeapon(float _distance);
+	void ActivateRayEffect(UNiagaraComponent* _particleSystem, float _deactivateDelay);
 
 private:
 	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& _hitResult);
+
+	const float PARTICLES_TIMER = 10.f;
 };
