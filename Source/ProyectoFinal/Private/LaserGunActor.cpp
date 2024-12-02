@@ -17,7 +17,7 @@ void ALaserGunActor::BeginPlay()
 	for (USceneComponent* Child : children)
 	{
 		UAudioComponent* audioComponent = Cast<UAudioComponent>(Child);
-		UParticleSystemComponent* particleComponent = Cast<UParticleSystemComponent>(Child);
+		UNiagaraComponent* particleComponent = Cast<UNiagaraComponent>(Child);
 
 		if (particleComponent) 
 		{
@@ -37,14 +37,19 @@ void ALaserGunActor::ShootWeapon(float _distance)
 	if (ShootEffect) 
 		ShootEffect->Activate();
 
+	FVector DestinationVectorAux;
+
 	bool raycastHit = PerformRaycast(Location, EndLocation, HitResult);
 
 	if (raycastHit)
 	{
 		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
-
-		//damage effect to enemy
+		DestinationVectorAux = HitResult.Location;
 	}
+	else
+		DestinationVectorAux = EndLocation;
+	
+	ShootEffect->SetVectorParameter(TEXT("BeamEnd"), DestinationVectorAux);
 }
 
 //that should be converted into a template

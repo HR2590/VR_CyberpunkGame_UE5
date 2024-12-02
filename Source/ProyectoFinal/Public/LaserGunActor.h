@@ -7,6 +7,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Components/AudioComponent.h"
 #include "GameFramework/Actor.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "LaserGunActor.generated.h"
 
 UCLASS()
@@ -20,7 +22,7 @@ public:
 	ALaserGunActor();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ShootEffect")
-	UParticleSystemComponent* ShootEffect;
+	UNiagaraComponent* ShootEffect;
 
 public:	
 	virtual void BeginPlay() override;
