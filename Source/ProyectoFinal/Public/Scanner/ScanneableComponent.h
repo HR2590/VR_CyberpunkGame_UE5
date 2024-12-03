@@ -10,7 +10,7 @@
 class UScannerComponent;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROYECTOFINAL_API UScanneableComponent : public UWidgetComponent
+class PROYECTOFINAL_API UScanneableComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
@@ -22,11 +22,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FText Text;
-
-	void EnableScaneableUI();
-	void DisableScaneableUI();
-	
 
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,

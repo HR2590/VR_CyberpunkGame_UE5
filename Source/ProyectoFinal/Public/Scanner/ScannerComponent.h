@@ -6,9 +6,11 @@
 #include "ProyectoFinal/VRPawn.h"
 #include "ScannerComponent.generated.h"
 
+class UScanneableComponent;
+struct FTimerHandle;
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROYECTOFINAL_API UScannerComponent : public UActorComponent
+class PROYECTOFINAL_API UScannerComponent : public UWidgetComponent
 {
 	GENERATED_BODY()
 
@@ -27,7 +29,28 @@ protected:
 	UPROPERTY(EditAnywhere, Category="ScannerInputs")
 	UInputAction* ScanAction;
 
-	UPROPERTY(EditAnywhere, Category="ScannerInputs")
+	UPROPERTY(EditAnywhere, Category="Scanner")
+	UUserWidget* ScannerOverlay;
+	
+	//Scan values
+	UPROPERTY(EditAnywhere, Category="ScannerValues")
+	float ScanDistance = 500.f;
+
+	UPROPERTY(EditDefaultsOnly, Category="ScannerValues")
+	float ScanScope = 10.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category="ScannerValues")
+	float ScanFrequency = 0.25f;
+	//Scan values
+
+	UFUNCTION(BlueprintImplementableEvent, Category="Scanner")
+	void InfoToUI(UScanneableComponent* ScanneableComponent);
+
+	UFUNCTION(BlueprintImplementableEvent, Category="Scanner")
+	void DeactivateScanner();
+
+	UFUNCTION(BlueprintImplementableEvent, Category="Scanner")
+	void ActivateScanner();
 
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
@@ -35,17 +58,29 @@ public:
 
 private:
 
+	UPROPERTY()
+	UCameraComponent* OwnerActorCameraComponent;
+
 	UPROPERTY(EditAnywhere, Category="Scanner")
 	AActor* Item;
 
-	TArray<UScanneableComponent*> ;
+	UPROPERTY()
+	TArray<FHitResult> OutHits;
 
 	UPROPERTY(EditAnywhere, Category="Scanner")
 	bool bEnabledSystem = false;
 
-	void StartEndScan();
+	UPROPERTY()
+	FTimerHandle ScanTimerHandle;
 
-	void ScanItem();
+	UFUNCTION()
+	virtual void StartEndScan();
+
+	UFUNCTION()
+	virtual void ScanItem();
+
+	UFUNCTION()
+	virtual void Scan();
 
 	
 };
