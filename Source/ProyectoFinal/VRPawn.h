@@ -104,6 +104,8 @@ public:
 
 	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& HitResult);
 
+	void ToggleFixedPointsVisibility(bool bVisible);
+
 private:
 	const float DISTANCE_TELEPORT = 1000;
 	const float DISTANCE_GRAB = 1000;
