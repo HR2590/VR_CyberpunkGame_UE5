@@ -37,5 +37,5 @@ public:
 private:
 	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& _hitResult);
 
-	const float PARTICLES_TIMER = 0.1f;
+	const float PARTICLES_TIMER = 10.f;
 };

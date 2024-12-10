@@ -40,7 +40,7 @@ void ALaserGunActor::SetupInputComponent()
 {
 	if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(InputComponent))
 	{
-		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &ALaserGunActor::ShootWeapon, 500.f);
+		EnhancedInputComponent->BindAction(ShootAction, ETriggerEvent::Triggered, this, &ALaserGunActor::ShootWeapon, -100.f);
 	}
 }
 
