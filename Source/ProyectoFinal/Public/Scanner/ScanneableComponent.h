@@ -23,7 +23,10 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FText Text;
+	FText TitleText;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FText DescriptionText;
 
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,

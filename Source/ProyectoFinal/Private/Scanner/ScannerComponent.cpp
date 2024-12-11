@@ -85,6 +85,7 @@ void UScannerComponent::StartEndScan()
 void UScannerComponent::ScanItem()
 {
 	float LastDistance = 0.0f;
+	Item = nullptr;
 	
 	for (const auto& Hit : OutHits)
 	{
@@ -102,6 +103,10 @@ void UScannerComponent::ScanItem()
 	if (Item)
 	{
 		InfoToUI(Item->GetComponentByClass<UScanneableComponent>());
+	}
+	else
+	{
+		InfoToUI(nullptr);
 	}
 	
 }
