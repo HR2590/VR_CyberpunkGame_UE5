@@ -204,7 +204,8 @@ void AVRPawn::HandleTeleport()
 	// if we can teleport we teleport to the location
 	if (bTeleport)
 	{
-		SetActorLocation(TeleportLocation + FVector(0.f, 0.f, GetActorLocation().Z));
+		TeleportLocation.Z = GetActorLocation().Z;
+		SetActorLocation(TeleportLocation);
 		bTeleport = false;
 		ParabolicEffect->DeactivateImmediate();
 		TeleportEffect->DeactivateImmediate();
