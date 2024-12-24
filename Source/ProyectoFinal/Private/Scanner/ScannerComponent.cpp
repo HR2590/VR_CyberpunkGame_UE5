@@ -140,17 +140,20 @@ void UScannerComponent::Scan()
 		Params
 	);
 
+	UpdateUI();
 
 #if WITH_EDITOR
-	DrawDebugSphereTraceMulti(GetWorld(),
-		CurrentLocation,
-		CurrentEndLocation,
-		ScanScope,
-		EDrawDebugTrace::ForDuration,
-		BHit, OutHits,
-		FColor::Green,
-		FColor::Red,
-		ScanFrequency);
+
+	// DrawDebugSphereTraceMulti(GetWorld(),
+	// CurrentLocation,
+	// CurrentEndLocation,
+	// ScanScope,
+	// EDrawDebugTrace::ForDuration,
+	// BHit, OutHits,
+	// FColor::Green,
+	// FColor::Red,
+	// ScanFrequency);
+	
 #endif
 	
 	

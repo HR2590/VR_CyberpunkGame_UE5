@@ -52,6 +52,12 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent, Category="Scanner")
 	void ActivateScanner();
 
+	UFUNCTION(BlueprintImplementableEvent, Category="Scanner")
+	void UpdateUI();
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<FHitResult> OutHits;
+	
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
@@ -63,9 +69,6 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Scanner")
 	AActor* Item;
-
-	UPROPERTY()
-	TArray<FHitResult> OutHits;
 
 	UPROPERTY(EditAnywhere, Category="Scanner")
 	bool bEnabledSystem = false;
