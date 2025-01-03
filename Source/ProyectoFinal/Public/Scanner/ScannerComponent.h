@@ -28,9 +28,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="ScannerInputs")
 	UInputAction* ScanAction;
-
-	UPROPERTY(EditAnywhere, Category="Scanner")
-	UUserWidget* ScannerOverlay;
 	
 	//Scan values
 	UPROPERTY(EditAnywhere, Category="ScannerValues")

@@ -4,14 +4,8 @@
 
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
-#include "KismetTraceUtils.h"
-#include "PropertyAccess.h"
 #include "Camera/CameraComponent.h"
-#include "Kismet/GameplayStatics.h"
-#include "Kismet/KismetSystemLibrary.h"
 #include "Scanner/ScanneableComponent.h"
-#include "Serialization/CompactBinary.h"
-#include "KismetTraceUtils.h"
 
 
 UScannerComponent::UScannerComponent()
