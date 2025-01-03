@@ -148,6 +148,7 @@ void AVRPawn::ReleaseObject(UPrimitiveComponent* HitComponent)
 	}
 }
 
+//that should be converted into a template
 bool AVRPawn::PerformRaycast(FVector _location, FVector _endLocation, FHitResult& _hitResult)
 {
 	FCollisionQueryParams TraceParams;
