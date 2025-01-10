@@ -11,6 +11,8 @@
 #include "NiagaraComponent.h"
 #include "Components/SplineComponent.h"
 
+#include "Equipables/Equippable.h"
+
 AVRPawn::AVRPawn()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -92,17 +94,56 @@ void AVRPawn::PickupObject(float _distance)
 
 	bool raycastHit = PerformRaycast(Location, EndLocation, HitResult);
 
-	if (raycastHit)
+	if (raycastHit) 
 	{
-		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+		if (!ObjectGrabbed) 
+		{
+			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
 
-		if (!ObjectGrabbed && HitComponent)
-		{
-			HandleObjectPickup(HitComponent);
+			if (HitComponent->IsSimulatingPhysics() && HitComponent->ComponentHasTag(PICKABLE_TAG))
+			{
+				HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
+				HitComponent->SetSimulatePhysics(false);
+
+				CaughtComponent = HitComponent;
+
+				ObjectGrabbed = true;
+			}else if(HitComponent->IsSimulatingPhysics()==false && HitComponent->ComponentHasTag(EQUIPPABLE_TAG))
+			{
+				HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+				HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+				HitComponent->SetSimulatePhysics(false);
+
+				CaughtComponent = HitComponent;
+
+				ObjectGrabbed = true;
+			}
 		}
-		else if (ObjectGrabbed && HitComponent)
+		else
 		{
-			ReleaseObject(HitComponent);
+			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+
+			if (HitComponent && HitComponent->ComponentHasTag(EQUIPPABLE_TAG) && !ObjectEquipped)
+			{
+				EquippedMask = Cast<AEquippable>(HitComponent->GetOwner());
+
+					HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+			
+					HitComponent->AttachToComponent(VRCamera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+					HitComponent->SetSimulatePhysics(false);
+					EquippedMask->EquipAction();
+
+					ObjectEquipped = true;
+					ObjectGrabbed = false;
+				
+			}else if (HitComponent)
+			{
+				HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+				HitComponent->SetSimulatePhysics(true);
+
+				ObjectEquipped = false;
+				ObjectGrabbed = false;
+			}
 		}
 	}
 }
@@ -147,6 +188,7 @@ void AVRPawn::ReleaseObject(UPrimitiveComponent* HitComponent)
 		ObjectGrabbed = false;
 	}
 }
+
 
 //that should be converted into a template
 bool AVRPawn::PerformRaycast(FVector _location, FVector _endLocation, FHitResult& _hitResult)
