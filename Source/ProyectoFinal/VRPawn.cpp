@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStaticsTypes.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
+#include "StaticTeleportPlace.h"
 #include "Components/SplineComponent.h"
 
 #include "Equipables/Equippable.h"
@@ -210,6 +211,11 @@ bool AVRPawn::PerformRaycast(FVector _location, FVector _endLocation, FHitResult
 
 void AVRPawn::PerformParabolicRaycast()
 {
+	if (!bTeleport)
+	{
+		ToggleFixedPointsVisibility(true);
+	}
+	
 	//Prepare all the varables for the projectile path
 	FPredictProjectilePathParams PathParams;
 	PathParams.StartLocation = R_MotionController->GetComponentLocation();
@@ -229,14 +235,27 @@ void AVRPawn::PerformParabolicRaycast()
 	// If hit succesfull, we set the varable to telepor location
 	if (bHit)
 	{
+		AActor* HitActor = PathResult.HitResult.GetActor();
+
+		if (HitActor && HitActor->IsA<AStaticTeleportPlace>())
+		{
+			AStaticTeleportPlace* FixedActor = Cast<AStaticTeleportPlace>(HitActor);
+			TeleportLocation = FixedActor->GetStaticPoint();
+			TeleportEffect->SetWorldLocation(TeleportLocation);
+			TeleportEffect->Activate();
+			
+		}
+		else
+		{
+			TeleportLocation = PathResult.HitResult.ImpactPoint;
+			TeleportEffect->SetWorldLocation(TeleportLocation);
+			TeleportEffect->Activate();
+		}
+		
 		ParabolicEffect->Activate();
 		ParabolicEffect->SetVectorParameter(FName("Start"), PathParams.StartLocation);
 		ParabolicEffect->SetVectorParameter(FName("End"), PathResult.HitResult.ImpactPoint);
-
-		TeleportEffect->Activate();
-		TeleportEffect->SetWorldLocation(PathResult.HitResult.ImpactPoint);
 		
-		TeleportLocation = PathResult.HitResult.ImpactPoint;
 		bTeleport = true;
 	}
 
@@ -250,7 +269,33 @@ void AVRPawn::HandleTeleport()
 		TeleportLocation.Z = GetActorLocation().Z;
 		SetActorLocation(TeleportLocation);
 		bTeleport = false;
+
+		ToggleFixedPointsVisibility(false);
+		
 		ParabolicEffect->DeactivateImmediate();
 		TeleportEffect->DeactivateImmediate();
+	}
+}
+
+void AVRPawn::ToggleFixedPointsVisibility(bool bVisible)
+{
+
+	TArray<AActor*> FixedPoints;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticTeleportPlace::StaticClass(), FixedPoints);
+	
+	for (AActor* Actor : FixedPoints)
+	{
+		AStaticTeleportPlace* FixedPoint = Cast<AStaticTeleportPlace>(Actor);
+		if (FixedPoint)
+		{
+			if (bVisible)
+			{
+				FixedPoint->ShowFixedPoint();
+			}
+			else
+			{
+				FixedPoint->HideFixedPoint();
+			}
+		}
 	}
 }
