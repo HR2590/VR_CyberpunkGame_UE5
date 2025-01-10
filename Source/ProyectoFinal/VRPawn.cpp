@@ -117,6 +117,10 @@ void AVRPawn::HandleObjectPickup(UPrimitiveComponent* HitComponent)
 	{
 		PickupDrawerObject(HitComponent);
 	}
+	else if (HitComponent->ComponentHasTag(EQUIPABLE_TAG))
+	{
+		
+	}
 }
 
 void AVRPawn::PickupPhysicsObject(UPrimitiveComponent* HitComponent)
@@ -197,7 +201,6 @@ void AVRPawn::PerformParabolicRaycast()
 		TeleportLocation = PathResult.HitResult.ImpactPoint;
 		bTeleport = true;
 	}
-
 }
 
 void AVRPawn::HandleTeleport()

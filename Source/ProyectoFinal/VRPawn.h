@@ -109,6 +109,7 @@ private:
 	const float DISTANCE_GRAB = 1000;
 	const FName PICKABLE_TAG = "Pickable";
 	const FName DRAWER_TAG = "Drawer";
+	const FName EQUIPABLE_TAG = "Equipable";
 	APlayerController* PlayerController;
 
 	bool ObjectGrabbed;
