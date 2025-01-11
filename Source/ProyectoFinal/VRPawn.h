@@ -41,6 +41,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Controllers Mesh")
 	UStaticMeshComponent* AnchorPointRight;
+	
 	//BASE VR SET
 
 	//INPUT SYSTEM
@@ -51,6 +52,9 @@ protected:
 	UInputAction* TeleportAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* RevealAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputAction* GrabAction;
 	//INPUT SYSTEM
 	
@@ -58,7 +62,7 @@ protected:
 	void HandleTeleport();
 	void PerformParabolicRaycast();
 	// PARABOLIC TELEPORT FUNCTIONS
-
+    UPROPERTY()
 	UPrimitiveComponent* CaughtComponent;
 
 	// PARABOLIC TELEPORT VARIABLES
@@ -86,6 +90,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "ParabolicVisuals")
 	UNiagaraComponent* TeleportEffect;
 	// PARABOLIC TELEPORT VARIABLES
+
+	//REVEAL GUN VARIABLES
 	
 public:
 	virtual void Tick(float DeltaTime) override;
@@ -97,12 +103,20 @@ public:
 	void HandleObjectPickup(UPrimitiveComponent* HitComponent);
 
 	void PickupPhysicsObject(UPrimitiveComponent* HitComponent);
+	
 
 	void PickupDrawerObject(UPrimitiveComponent* HitComponent);
-
 	void ReleaseObject(UPrimitiveComponent* HitComponent);
-
 	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& HitResult);
+
+//REVEAL GUN FUNCTIONS
+	
+	void RevealActionTrigger();
+	UFUNCTION(BlueprintImplementableEvent)
+	void RevealAction_ImplementableEvent(AActor* InActor);
+	void SetupRevealAction(AActor* InActor);
+	UFUNCTION(BlueprintImplementableEvent)
+	void UnbindRevealAction_ImplementableEvent();
 
 private:
 	const float DISTANCE_TELEPORT = 1000;
@@ -110,6 +124,8 @@ private:
 	const FName PICKABLE_TAG = "Pickable";
 	const FName DRAWER_TAG = "Drawer";
 	APlayerController* PlayerController;
+	
+
 
 	bool ObjectGrabbed;
 
