@@ -21,6 +21,7 @@ AStaticTeleportPlace::AStaticTeleportPlace()
 void AStaticTeleportPlace::BeginPlay()
 {
 	Super::BeginPlay();
+	FixedMesh->SetVisibility(false, true);
 }
 
 // Called every frame
