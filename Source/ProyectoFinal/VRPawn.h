@@ -9,6 +9,9 @@
 #include <UserSettings/EnhancedInputUserSettings.h>
 #include "VRPawn.generated.h"
 
+class UNiagaraComponent;
+class USplineComponent;
+
 UCLASS()
 class PROYECTOFINAL_API AVRPawn : public APawn
 {
@@ -19,6 +22,9 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+
+	//BASE VR SET
+	UPROPERTY()
 	USceneComponent* VRCore;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Set")
@@ -35,7 +41,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Controllers Mesh")
 	UStaticMeshComponent* AnchorPointRight;
+	
+	//BASE VR SET
 
+	//INPUT SYSTEM
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
 	UInputMappingContext* InputMappingContext;
 
@@ -43,10 +52,47 @@ protected:
 	UInputAction* TeleportAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
-	UInputAction* GrabAction;
+	UInputAction* RevealAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
+	UInputAction* GrabAction;
+	//INPUT SYSTEM
+	
+	// PARABOLIC TELEPORT FUNCTIONS
+	void HandleTeleport();
+	void PerformParabolicRaycast();
+	// PARABOLIC TELEPORT FUNCTIONS
+    UPROPERTY()
 	UPrimitiveComponent* CaughtComponent;
 
+	// PARABOLIC TELEPORT VARIABLES
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float ParabolicVelocity = 1000.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float ProjectileRadius = 5.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float MaxSimTime = 3.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float SimFrequency = 15.0f;
+	
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	float OverrideGravityZ = -980.0f;
+
+	UPROPERTY(EditAnywhere, Category = "ParabolicData")
+	bool bDebug = false;
+
+	UPROPERTY(EditAnywhere, Category = "ParabolicVisuals")
+	UNiagaraComponent* ParabolicEffect;
+
+	UPROPERTY(EditAnywhere, Category = "ParabolicVisuals")
+	UNiagaraComponent* TeleportEffect;
+	// PARABOLIC TELEPORT VARIABLES
+
+	//REVEAL GUN VARIABLES
+	
 public:
 	virtual void Tick(float DeltaTime) override;
 
@@ -54,17 +100,37 @@ public:
 
 	void PickupObject(float _distance);
 
-	void HandleTeleport(float _distance);
+	void HandleObjectPickup(UPrimitiveComponent* HitComponent);
 
+	void PickupPhysicsObject(UPrimitiveComponent* HitComponent);
+	
+
+	void PickupDrawerObject(UPrimitiveComponent* HitComponent);
+	void ReleaseObject(UPrimitiveComponent* HitComponent);
 	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& HitResult);
+
+//REVEAL GUN FUNCTIONS
+	
+	void RevealActionTrigger();
+	UFUNCTION(BlueprintImplementableEvent)
+	void RevealAction_ImplementableEvent(AActor* InActor);
+	void SetupRevealAction(AActor* InActor);
+	UFUNCTION(BlueprintImplementableEvent)
+	void UnbindRevealAction_ImplementableEvent();
 
 private:
 	const float DISTANCE_TELEPORT = 1000;
 	const float DISTANCE_GRAB = 1000;
 	const FName PICKABLE_TAG = "Pickable";
+	const FName DRAWER_TAG = "Drawer";
 	APlayerController* PlayerController;
+	
+
 
 	bool ObjectGrabbed;
+
+	FVector TeleportLocation;
+	bool bTeleport = false;
 };
 
 
