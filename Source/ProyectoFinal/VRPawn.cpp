@@ -229,7 +229,7 @@ void AVRPawn::PerformParabolicRaycast()
 	PathParams.MaxSimTime = MaxSimTime;
 	PathParams.SimFrequency = SimFrequency;
 	PathParams.OverrideGravityZ = OverrideGravityZ;  
-	PathParams.TraceChannel = ECC_Visibility;
+	PathParams.TraceChannel = ECC_GameTraceChannel2;
 	PathParams.DrawDebugType = bDebug ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 	PathParams.ActorsToIgnore.Add(this);
 
