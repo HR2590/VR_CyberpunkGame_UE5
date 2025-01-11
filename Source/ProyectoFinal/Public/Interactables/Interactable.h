@@ -22,10 +22,7 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interact")
 	void InteractionHit(UPrimitiveComponent* HitComponent);
 
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interact")
-	void PawnInteraction(APawn* Pawn);
-
-	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category="Interact")
-	void KatanaInteraction(FVector ImpactLocation, FVector PointNormal);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interact")
+	void PawnGrab(APawn* Pawn);
 	
 };

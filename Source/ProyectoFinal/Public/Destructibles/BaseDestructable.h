@@ -9,7 +9,7 @@
 class UProceduralMeshComponent;
 
 UCLASS()
-class PROYECTOFINAL_API ABaseDestructable : public AActor, public IInteractable
+class PROYECTOFINAL_API ABaseDestructable : public AActor
 {
 	GENERATED_BODY()
 
@@ -25,15 +25,8 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Mesh")
 	UStaticMeshComponent* StaticMesh;
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void CutObject(FVector ImpactLocation, FVector PointNormal);
 	
 public:
-
-	virtual void KatanaInteraction_Implementation(FVector ImpactLocation, FVector PointNormal) override;
-
-private:
 	
 
 	

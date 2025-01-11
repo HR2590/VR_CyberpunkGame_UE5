@@ -24,14 +24,9 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UBoxComponent* HitBox;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USceneComponent* StartLocation;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USceneComponent* EndLocation;
 
-	virtual void PawnInteraction_Implementation(APawn* Pawn) override;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UBoxComponent* BoxPickable;
 
 public:
 	
