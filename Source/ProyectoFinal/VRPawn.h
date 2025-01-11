@@ -113,6 +113,7 @@ private:
 	const FName PICKABLE_TAG = "Pickable";
 	const FName EQUIPPABLE_TAG = "Equippable";
 	const FName DRAWER_TAG = "Drawer";
+	const FName EQUIPABLE_TAG = "Equipable";
 	APlayerController* PlayerController;
 
 	AEquippable* EquippedMask = nullptr;

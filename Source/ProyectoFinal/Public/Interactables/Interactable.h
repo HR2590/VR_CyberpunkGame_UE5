@@ -21,4 +21,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interact")
 	void InteractionHit(UPrimitiveComponent* HitComponent);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Interact")
+	void PawnGrab(APawn* Pawn);
+	
 };
