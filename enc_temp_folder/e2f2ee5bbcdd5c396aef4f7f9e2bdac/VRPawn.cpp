@@ -9,9 +9,7 @@
 #include "Kismet/GameplayStaticsTypes.h"
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
-#include "StaticTeleportPlace.h"
 #include "Components/SplineComponent.h"
-
 #include "Equipables/Equippable.h"
 
 AVRPawn::AVRPawn()
@@ -20,9 +18,14 @@ AVRPawn::AVRPawn()
 
 	VRCore = CreateDefaultSubobject<USceneComponent>(TEXT("VR_Body"));
 	RootComponent = VRCore;
-
+	
 	VRCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("VR_Camera"));
 	VRCamera->SetupAttachment(RootComponent);
+
+	VRHeadCollision = CreateDefaultSubobject<USphereComponent>(TEXT("HeadCollision"));
+	VRHeadCollision->SetSphereRadius(50.0f);
+	VRHeadCollision->SetCollisionProfileName(TEXT("OverlapAll"));
+	VRHeadCollision->SetupAttachment(VRCamera);
 
 	L_MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("L_MotionController"));
 	L_MotionController->SetupAttachment(RootComponent);
@@ -95,57 +98,29 @@ void AVRPawn::PickupObject(float _distance)
 
 	bool raycastHit = PerformRaycast(Location, EndLocation, HitResult);
 
-	if (raycastHit) 
+	if (raycastHit)
 	{
-		if (!ObjectGrabbed) 
+		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
+
+		if(!ObjectGrabbed && ObjectEquipped && HitComponent && HitComponent->ComponentHasTag(EQUIPPABLE_TAG))
 		{
-			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
-
-			if (HitComponent->IsSimulatingPhysics() && HitComponent->ComponentHasTag(PICKABLE_TAG))
-			{
-				HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetIncludingScale);
-				HitComponent->SetSimulatePhysics(false);
-
-				CaughtComponent = HitComponent;
-
-				ObjectGrabbed = true;
-			}else if(HitComponent->IsSimulatingPhysics()==false && HitComponent->ComponentHasTag(EQUIPPABLE_TAG))
-			{
-				HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-				HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-				HitComponent->SetSimulatePhysics(false);
-
-				CaughtComponent = HitComponent;
-
-				ObjectGrabbed = true;
-			}
+			UnEqquip(HitComponent);
 		}
-		else
+		
+		else if (!ObjectGrabbed && HitComponent)
 		{
-			UPrimitiveComponent* HitComponent = HitResult.GetComponent();
-
-			if (HitComponent && HitComponent->ComponentHasTag(EQUIPPABLE_TAG) && !ObjectEquipped)
-			{
-				EquippedMask = Cast<AEquippable>(HitComponent->GetOwner());
-
-					HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-			
-					HitComponent->AttachToComponent(VRCamera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-					HitComponent->SetSimulatePhysics(false);
-					EquippedMask->EquipAction();
-
-					ObjectEquipped = true;
-					ObjectGrabbed = false;
-				
-			}else if (HitComponent)
-			{
-				HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-				HitComponent->SetSimulatePhysics(true);
-
-				ObjectEquipped = false;
-				ObjectGrabbed = false;
-			}
+			HandleObjectPickup(HitComponent);
 		}
+		else if(ObjectGrabbed && HitComponent && HitComponent->ComponentHasTag(EQUIPPABLE_TAG))
+		{
+			CheckEquippableObjectIsOnFace(HitComponent);
+		}
+		else if (ObjectGrabbed && HitComponent)
+		{
+			ReleaseObject(HitComponent);
+		}
+
+		
 	}
 }
 
@@ -158,10 +133,6 @@ void AVRPawn::HandleObjectPickup(UPrimitiveComponent* HitComponent)
 	else if (HitComponent->ComponentHasTag(DRAWER_TAG))
 	{
 		PickupDrawerObject(HitComponent);
-	}
-	else if (HitComponent->ComponentHasTag(EQUIPABLE_TAG))
-	{
-		
 	}
 }
 
@@ -184,6 +155,35 @@ void AVRPawn::PickupDrawerObject(UPrimitiveComponent* HitComponent)
 		IInteractable::Execute_InteractionHit(OwnerActor, HitComponent);
 }
 
+void AVRPawn::CheckEquippableObjectIsOnFace(UPrimitiveComponent* HitComponent)
+{
+	Equippable = Cast<AEquippable>(HitComponent->GetOwner());
+	
+	if(VRHeadCollision->IsOverlappingActor(Equippable) && HitComponent && HitComponent->ComponentHasTag(EQUIPPABLE_TAG) && !ObjectEquipped)
+	{
+		HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+			
+		HitComponent->AttachToComponent(VRCamera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		HitComponent->SetSimulatePhysics(false);
+		Equippable->EquipAction();
+
+		ObjectEquipped = true;
+		ObjectGrabbed = false;
+	}
+	else
+	{
+		ReleaseObject(HitComponent);
+	}
+}
+
+void AVRPawn::UnEqquip(UPrimitiveComponent* HitComponent)
+{
+	HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	ObjectEquipped = false;
+	ObjectGrabbed = true;
+}
+
 void AVRPawn::ReleaseObject(UPrimitiveComponent* HitComponent)
 {
 	if (ObjectGrabbed && HitComponent)
@@ -193,7 +193,6 @@ void AVRPawn::ReleaseObject(UPrimitiveComponent* HitComponent)
 		ObjectGrabbed = false;
 	}
 }
-
 
 //that should be converted into a template
 bool AVRPawn::PerformRaycast(FVector _location, FVector _endLocation, FHitResult& _hitResult)
@@ -215,11 +214,6 @@ bool AVRPawn::PerformRaycast(FVector _location, FVector _endLocation, FHitResult
 
 void AVRPawn::PerformParabolicRaycast()
 {
-	if (!bTeleport)
-	{
-		ToggleFixedPointsVisibility(true);
-	}
-	
 	//Prepare all the varables for the projectile path
 	FPredictProjectilePathParams PathParams;
 	PathParams.StartLocation = R_MotionController->GetComponentLocation();
@@ -228,40 +222,28 @@ void AVRPawn::PerformParabolicRaycast()
 	PathParams.ProjectileRadius = ProjectileRadius;
 	PathParams.MaxSimTime = MaxSimTime;
 	PathParams.SimFrequency = SimFrequency;
-	PathParams.OverrideGravityZ = OverrideGravityZ;  
-	PathParams.TraceChannel = ECC_GameTraceChannel2;
+	PathParams.OverrideGravityZ = OverrideGravityZ;
+	PathParams.TraceChannel = ECC_Visibility;
 	PathParams.DrawDebugType = bDebug ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 	PathParams.ActorsToIgnore.Add(this);
 
 	FPredictProjectilePathResult PathResult;
 	bool bHit = UGameplayStatics::PredictProjectilePath(GetWorld(), PathParams, PathResult);
-	
-	// If hit succesfull, we set the varable to telepor location
+
+	// If hit succesfull, we set the varable to teleport location
 	if (bHit)
 	{
-		AActor* HitActor = PathResult.HitResult.GetActor();
-
-		if (HitActor && HitActor->IsA<AStaticTeleportPlace>())
-		{
-			AStaticTeleportPlace* FixedActor = Cast<AStaticTeleportPlace>(HitActor);
-			TeleportLocation = FixedActor->GetStaticPoint();
-			TeleportEffect->SetWorldLocation(TeleportLocation);
-			TeleportEffect->Activate();
-			
-		}
-		else
-		{
-			TeleportLocation = PathResult.HitResult.ImpactPoint;
-			TeleportEffect->SetWorldLocation(TeleportLocation);
-			TeleportEffect->Activate();
-		}
-		
 		ParabolicEffect->Activate();
 		ParabolicEffect->SetVectorParameter(FName("Start"), PathParams.StartLocation);
 		ParabolicEffect->SetVectorParameter(FName("End"), PathResult.HitResult.ImpactPoint);
-		
+
+		TeleportEffect->Activate();
+		TeleportEffect->SetWorldLocation(PathResult.HitResult.ImpactPoint);
+
+		TeleportLocation = PathResult.HitResult.ImpactPoint;
 		bTeleport = true;
 	}
+
 }
 
 void AVRPawn::HandleTeleport()
@@ -272,33 +254,7 @@ void AVRPawn::HandleTeleport()
 		TeleportLocation.Z = GetActorLocation().Z;
 		SetActorLocation(TeleportLocation);
 		bTeleport = false;
-
-		ToggleFixedPointsVisibility(false);
-		
 		ParabolicEffect->DeactivateImmediate();
 		TeleportEffect->DeactivateImmediate();
-	}
-}
-
-void AVRPawn::ToggleFixedPointsVisibility(bool bVisible)
-{
-
-	TArray<AActor*> FixedPoints;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticTeleportPlace::StaticClass(), FixedPoints);
-	
-	for (AActor* Actor : FixedPoints)
-	{
-		AStaticTeleportPlace* FixedPoint = Cast<AStaticTeleportPlace>(Actor);
-		if (FixedPoint)
-		{
-			if (bVisible)
-			{
-				FixedPoint->ShowFixedPoint();
-			}
-			else
-			{
-				FixedPoint->HideFixedPoint();
-			}
-		}
 	}
 }

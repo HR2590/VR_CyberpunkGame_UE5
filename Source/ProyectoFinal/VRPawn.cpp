@@ -105,8 +105,7 @@ void AVRPawn::PickupObject(float _distance)
 		if(!ObjectGrabbed && ObjectEquipped && HitComponent && HitComponent->ComponentHasTag(EQUIPPABLE_TAG))
 		{
 			UnEqquip(HitComponent);
-		}
-		
+		}	
 		else if (!ObjectGrabbed && HitComponent)
 		{
 			HandleObjectPickup(HitComponent);
@@ -119,8 +118,6 @@ void AVRPawn::PickupObject(float _distance)
 		{
 			ReleaseObject(HitComponent);
 		}
-
-		
 	}
 }
 
