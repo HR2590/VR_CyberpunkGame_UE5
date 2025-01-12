@@ -7,6 +7,8 @@
 #include <EngineFwd.h>
 #include <VREditorInteractor.h>
 #include <UserSettings/EnhancedInputUserSettings.h>
+
+#include "Components/SphereComponent.h"
 #include "VRPawn.generated.h"
 
 class UNiagaraComponent;
@@ -30,6 +32,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Set")
 	UCameraComponent* VRCamera;
+
+	UPROPERTY(VisibleAnywhere, Category = "VR Set")
+	USphereComponent* VRHeadCollision;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Controllers")
 	UMotionControllerComponent* L_MotionController;
@@ -103,6 +108,8 @@ public:
 
 	void CheckEquippableObjectIsOnFace(UPrimitiveComponent* HitComponent);
 
+	void UnEqquip(UPrimitiveComponent* HitComponent);
+
 	void ReleaseObject(UPrimitiveComponent* HitComponent);
 
 	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& HitResult);
@@ -117,7 +124,7 @@ private:
 	const FName DRAWER_TAG = "Drawer";
 	APlayerController* PlayerController;
 
-	AEquippable* EquippedMask = nullptr;
+	AEquippable* Equippable = nullptr;
 
 	bool ObjectGrabbed;
 	bool ObjectEquipped;

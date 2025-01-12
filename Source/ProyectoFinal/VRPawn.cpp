@@ -18,9 +18,14 @@ AVRPawn::AVRPawn()
 
 	VRCore = CreateDefaultSubobject<USceneComponent>(TEXT("VR_Body"));
 	RootComponent = VRCore;
-
+	
 	VRCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("VR_Camera"));
 	VRCamera->SetupAttachment(RootComponent);
+
+	VRHeadCollision = CreateDefaultSubobject<USphereComponent>(TEXT("HeadCollision"));
+	VRHeadCollision->SetSphereRadius(50.0f);
+	VRHeadCollision->SetCollisionProfileName(TEXT("OverlapAll"));
+	VRHeadCollision->SetupAttachment(VRCamera);
 
 	L_MotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("L_MotionController"));
 	L_MotionController->SetupAttachment(RootComponent);
@@ -97,7 +102,12 @@ void AVRPawn::PickupObject(float _distance)
 	{
 		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
 
-		if (!ObjectGrabbed && HitComponent)
+		if(!ObjectGrabbed && ObjectEquipped && HitComponent && HitComponent->ComponentHasTag(EQUIPPABLE_TAG))
+		{
+			UnEqquip(HitComponent);
+		}
+		
+		else if (!ObjectGrabbed && HitComponent)
 		{
 			HandleObjectPickup(HitComponent);
 		}
@@ -109,6 +119,8 @@ void AVRPawn::PickupObject(float _distance)
 		{
 			ReleaseObject(HitComponent);
 		}
+
+		
 	}
 }
 
@@ -145,15 +157,31 @@ void AVRPawn::PickupDrawerObject(UPrimitiveComponent* HitComponent)
 
 void AVRPawn::CheckEquippableObjectIsOnFace(UPrimitiveComponent* HitComponent)
 {
-	AEquippable* Equippable = Cast<AEquippable>(HitComponent->GetOwner());
+	Equippable = Cast<AEquippable>(HitComponent->GetOwner());
 	
-	HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
-	HitComponent->SetSimulatePhysics(true);
-	ObjectGrabbed = false;
-	AttachToComponent(VRCamera, FAttachmentTransformRules::SnapToTargetIncludingScale);
-	HitComponent->SetSimulatePhysics(false);
+	if(VRHeadCollision->IsOverlappingActor(Equippable) && HitComponent && HitComponent->ComponentHasTag(EQUIPPABLE_TAG) && !ObjectEquipped)
+	{
+		HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+			
+		HitComponent->AttachToComponent(VRCamera, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		HitComponent->SetSimulatePhysics(false);
+		Equippable->EquipAction();
 
-	Equippable->EquipAction();
+		ObjectEquipped = true;
+		ObjectGrabbed = false;
+	}
+	else
+	{
+		ReleaseObject(HitComponent);
+	}
+}
+
+void AVRPawn::UnEqquip(UPrimitiveComponent* HitComponent)
+{
+	HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	ObjectEquipped = false;
+	ObjectGrabbed = true;
 }
 
 void AVRPawn::ReleaseObject(UPrimitiveComponent* HitComponent)
