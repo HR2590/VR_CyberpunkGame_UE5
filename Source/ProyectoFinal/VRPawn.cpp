@@ -195,15 +195,15 @@ void AVRPawn::PerformParabolicRaycast()
 	PathParams.ProjectileRadius = ProjectileRadius;
 	PathParams.MaxSimTime = MaxSimTime;
 	PathParams.SimFrequency = SimFrequency;
-	PathParams.OverrideGravityZ = OverrideGravityZ;  
+	PathParams.OverrideGravityZ = OverrideGravityZ;
 	PathParams.TraceChannel = ECC_Visibility;
 	PathParams.DrawDebugType = bDebug ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 	PathParams.ActorsToIgnore.Add(this);
 
 	FPredictProjectilePathResult PathResult;
 	bool bHit = UGameplayStatics::PredictProjectilePath(GetWorld(), PathParams, PathResult);
-	
-	// If hit succesfull, we set the varable to telepor location
+
+	// If hit succesfull, we set the varable to teleport location
 	if (bHit)
 	{
 		ParabolicEffect->Activate();
@@ -212,7 +212,7 @@ void AVRPawn::PerformParabolicRaycast()
 
 		TeleportEffect->Activate();
 		TeleportEffect->SetWorldLocation(PathResult.HitResult.ImpactPoint);
-		
+
 		TeleportLocation = PathResult.HitResult.ImpactPoint;
 		bTeleport = true;
 	}

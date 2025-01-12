@@ -11,6 +11,7 @@
 
 class UNiagaraComponent;
 class USplineComponent;
+class AEquippable;
 
 UCLASS()
 class PROYECTOFINAL_API AVRPawn : public APawn
@@ -117,17 +118,23 @@ public:
 	void SetupRevealAction(AActor* InActor);
 	UFUNCTION(BlueprintImplementableEvent)
 	void UnbindRevealAction_ImplementableEvent();
+	void ToggleFixedPointsVisibility(bool bVisible);
 
 private:
 	const float DISTANCE_TELEPORT = 1000;
 	const float DISTANCE_GRAB = 1000;
 	const FName PICKABLE_TAG = "Pickable";
+	const FName EQUIPPABLE_TAG = "Equippable";
 	const FName DRAWER_TAG = "Drawer";
+	const FName EQUIPABLE_TAG = "Equipable";
 	APlayerController* PlayerController;
 	
 
 
+	AEquippable* EquippedMask = nullptr;
+
 	bool ObjectGrabbed;
+	bool ObjectEquipped;
 
 	FVector TeleportLocation;
 	bool bTeleport = false;
