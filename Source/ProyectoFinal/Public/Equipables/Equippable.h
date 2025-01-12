@@ -26,15 +26,11 @@ protected:
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void EquipAction();
-	
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* MaskMesh;
 
 	UPROPERTY(EditAnywhere)
 	bool bIsEquipped;
-
-	UPROPERTY(EditAnywhere)
-	USkeletalMeshComponent* PlayerFace; // Referencia al componente del jugador
 
 };

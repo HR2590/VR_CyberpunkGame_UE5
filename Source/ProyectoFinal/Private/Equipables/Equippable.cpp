@@ -20,3 +20,5 @@ void AEquippable::BeginPlay()
 {
     Super::BeginPlay();
 }
+
+

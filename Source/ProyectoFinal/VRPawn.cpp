@@ -10,6 +10,7 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 #include "Components/SplineComponent.h"
+#include "Equipables/Equippable.h"
 
 AVRPawn::AVRPawn()
 {
@@ -100,6 +101,10 @@ void AVRPawn::PickupObject(float _distance)
 		{
 			HandleObjectPickup(HitComponent);
 		}
+		else if(ObjectGrabbed && HitComponent && HitComponent->ComponentHasTag(EQUIPPABLE_TAG))
+		{
+			CheckEquippableObjectIsOnFace(HitComponent);
+		}
 		else if (ObjectGrabbed && HitComponent)
 		{
 			ReleaseObject(HitComponent);
@@ -136,6 +141,19 @@ void AVRPawn::PickupDrawerObject(UPrimitiveComponent* HitComponent)
 
 	if (OwnerActor && OwnerActor->GetClass()->ImplementsInterface(UInteractable::StaticClass()))
 		IInteractable::Execute_InteractionHit(OwnerActor, HitComponent);
+}
+
+void AVRPawn::CheckEquippableObjectIsOnFace(UPrimitiveComponent* HitComponent)
+{
+	AEquippable* Equippable = Cast<AEquippable>(HitComponent->GetOwner());
+	
+	HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
+	HitComponent->SetSimulatePhysics(true);
+	ObjectGrabbed = false;
+	AttachToComponent(VRCamera, FAttachmentTransformRules::SnapToTargetIncludingScale);
+	HitComponent->SetSimulatePhysics(false);
+
+	Equippable->EquipAction();
 }
 
 void AVRPawn::ReleaseObject(UPrimitiveComponent* HitComponent)

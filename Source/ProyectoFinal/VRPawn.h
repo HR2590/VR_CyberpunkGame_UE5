@@ -101,6 +101,8 @@ public:
 
 	void PickupDrawerObject(UPrimitiveComponent* HitComponent);
 
+	void CheckEquippableObjectIsOnFace(UPrimitiveComponent* HitComponent);
+
 	void ReleaseObject(UPrimitiveComponent* HitComponent);
 
 	bool PerformRaycast(FVector _location, FVector _endLocation, FHitResult& HitResult);
@@ -113,7 +115,6 @@ private:
 	const FName PICKABLE_TAG = "Pickable";
 	const FName EQUIPPABLE_TAG = "Equippable";
 	const FName DRAWER_TAG = "Drawer";
-	const FName EQUIPABLE_TAG = "Equipable";
 	APlayerController* PlayerController;
 
 	AEquippable* EquippedMask = nullptr;
