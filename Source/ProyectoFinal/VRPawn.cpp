@@ -37,7 +37,7 @@ AVRPawn::AVRPawn()
 
 	AnchorPointLeft = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Anchor_Point_Left"));
 	AnchorPointLeft->SetupAttachment(L_MotionController);
-
+	
 	AnchorPointRight = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Anchor_Point_Right"));
 	AnchorPointRight->SetupAttachment(R_MotionController);
 
@@ -86,8 +86,11 @@ void AVRPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Triggered, this, &AVRPawn::PerformParabolicRaycast);
 		EnhancedInputComponent->BindAction(TeleportAction, ETriggerEvent::Completed, this, &AVRPawn::HandleTeleport);
 		EnhancedInputComponent->BindAction(GrabAction, ETriggerEvent::Started, this, &AVRPawn::PickupObject, DISTANCE_GRAB);
+		EnhancedInputComponent->BindAction(RevealAction, ETriggerEvent::Triggered, this, &AVRPawn::RevealActionTrigger);
 	}
 }
+
+
 
 void AVRPawn::PickupObject(float _distance)
 {
@@ -118,6 +121,9 @@ void AVRPawn::PickupObject(float _distance)
 		{
 			ReleaseObject(HitComponent);
 		}
+		
+		SetupRevealAction(HitResult.GetActor());
+	
 	}
 }
 
@@ -143,6 +149,7 @@ void AVRPawn::PickupPhysicsObject(UPrimitiveComponent* HitComponent)
 		ObjectGrabbed = true;
 	}
 }
+
 
 void AVRPawn::PickupDrawerObject(UPrimitiveComponent* HitComponent)
 {
@@ -208,6 +215,17 @@ bool AVRPawn::PerformRaycast(FVector _location, FVector _endLocation, FHitResult
 
 	return raycastHit;
 }
+
+void AVRPawn::RevealActionTrigger()
+{
+}
+
+void AVRPawn::SetupRevealAction(AActor* InActor)
+{
+	if (!InActor) return;
+	if(InActor->ActorHasTag("RevealGun"))RevealAction_ImplementableEvent(InActor);
+}
+
 
 void AVRPawn::PerformParabolicRaycast()
 {
