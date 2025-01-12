@@ -152,7 +152,6 @@ void AVRPawn::ReleaseObject(UPrimitiveComponent* HitComponent)
 		HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 		HitComponent->SetSimulatePhysics(true);
 		ObjectGrabbed = false;
-		UnbindRevealAction_ImplementableEvent();
 	}
 }
 

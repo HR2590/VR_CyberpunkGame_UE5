@@ -116,8 +116,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void RevealAction_ImplementableEvent(AActor* InActor);
 	void SetupRevealAction(AActor* InActor);
-	UFUNCTION(BlueprintImplementableEvent)
-	void UnbindRevealAction_ImplementableEvent();
+
+	
 	void ToggleFixedPointsVisibility(bool bVisible);
 
 private:
