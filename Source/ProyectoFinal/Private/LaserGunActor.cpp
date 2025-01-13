@@ -1,5 +1,6 @@
 #include "LaserGunActor.h"
 #include <EnhancedInputComponent.h>
+#include <LaserReceptor.h>
 
 ALaserGunActor::ALaserGunActor()
 {
@@ -67,6 +68,11 @@ void ALaserGunActor::ShootWeapon(float _distance)
 	{
 		UPrimitiveComponent* HitComponent = HitResult.GetComponent();
 		DestinationVectorAux = HitResult.Location;
+
+		ALaserReceptor* LaserReceptor = Cast<ALaserReceptor>(HitComponent->GetOwner());
+
+		if (LaserReceptor)
+			LaserReceptor->TurnOnLaserReceptor();
 	}
 	else
 		DestinationVectorAux = EndLocation;
