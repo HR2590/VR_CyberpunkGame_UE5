@@ -33,7 +33,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Set")
 	UCameraComponent* VRCamera;
 
-	UPROPERTY(VisibleAnywhere, Category = "VR Set")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Set")
 	USphereComponent* VRHeadCollision;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "VR Controllers")

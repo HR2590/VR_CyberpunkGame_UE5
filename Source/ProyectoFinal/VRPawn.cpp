@@ -182,8 +182,10 @@ void AVRPawn::CheckEquippableObjectIsOnFace(UPrimitiveComponent* HitComponent)
 
 void AVRPawn::UnEqquip(UPrimitiveComponent* HitComponent)
 {
+	Equippable = Cast<AEquippable>(HitComponent->GetOwner());
 	HitComponent->DetachFromComponent(FDetachmentTransformRules::KeepWorldTransform);
 	HitComponent->AttachToComponent(L_MotionController, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	Equippable->UnEquipAction();
 	ObjectEquipped = false;
 	ObjectGrabbed = true;
 }

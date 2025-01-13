@@ -16,9 +16,6 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnEquip();
-
 	UPROPERTY(VisibleAnywhere)
 	USphereComponent* ProximitySphere;
 
@@ -26,6 +23,9 @@ protected:
 public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void EquipAction();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void UnEquipAction();
 
 	UPROPERTY(VisibleAnywhere)
 	UStaticMeshComponent* MaskMesh;
