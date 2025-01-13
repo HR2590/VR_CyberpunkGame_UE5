@@ -11,6 +11,7 @@
 #include "NiagaraComponent.h"
 #include "Components/SplineComponent.h"
 #include "Equipables/Equippable.h"
+#include "StaticTeleportPlace.h"
 
 AVRPawn::AVRPawn()
 {
@@ -243,6 +244,7 @@ void AVRPawn::PerformParabolicRaycast()
 	PathParams.TraceChannel = ECC_GameTraceChannel2;
 	PathParams.DrawDebugType = bDebug ? EDrawDebugTrace::ForOneFrame : EDrawDebugTrace::None;
 	PathParams.ActorsToIgnore.Add(this);
+	
 
 	FPredictProjectilePathResult PathResult;
 	bool bHit = UGameplayStatics::PredictProjectilePath(GetWorld(), PathParams, PathResult);
@@ -273,5 +275,28 @@ void AVRPawn::HandleTeleport()
 		bTeleport = false;
 		ParabolicEffect->DeactivateImmediate();
 		TeleportEffect->DeactivateImmediate();
+	}
+}
+
+void AVRPawn::ToggleFixedPointsVisibility(bool bVisible)
+{
+
+	TArray<AActor*> FixedPoints;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AStaticTeleportPlace::StaticClass(), FixedPoints);
+	
+	for (AActor* Actor : FixedPoints)
+	{
+		AStaticTeleportPlace* FixedPoint = Cast<AStaticTeleportPlace>(Actor);
+		if (FixedPoint)
+		{
+			if (bVisible)
+			{
+				FixedPoint->ShowFixedPoint();
+			}
+			else
+			{
+				FixedPoint->HideFixedPoint();
+			}
+		}
 	}
 }
