@@ -232,6 +232,11 @@ void AVRPawn::SetupRevealAction(AActor* InActor)
 
 void AVRPawn::PerformParabolicRaycast()
 {
+	if (!bTeleport)
+	{
+		ToggleFixedPointsVisibility(true);
+	}
+	
 	//Prepare all the varables for the projectile path
 	FPredictProjectilePathParams PathParams;
 	PathParams.StartLocation = R_MotionController->GetComponentLocation();
@@ -252,12 +257,31 @@ void AVRPawn::PerformParabolicRaycast()
 	// If hit succesfull, we set the varable to teleport location
 	if (bHit)
 	{
+		AActor* HitActor = PathResult.HitResult.GetActor();
+
+		if (HitActor && HitActor->IsA<AStaticTeleportPlace>())
+		{
+			// Obtener el FixedPointActor
+			AStaticTeleportPlace* FixedActor = Cast<AStaticTeleportPlace>(HitActor);
+
+			// Ajustar el punto de teleportación al centro del FixedPointActor
+			TeleportLocation = FixedActor->GetStaticPoint();
+
+			// Centrar el efecto de teleportación en el punto fijo
+			TeleportEffect->SetWorldLocation(TeleportLocation);
+
+			// Activar el efecto de teleportación con el centro ajustado
+			TeleportEffect->Activate();
+		}
+		else
+		{
+			TeleportEffect->SetWorldLocation(PathResult.HitResult.ImpactPoint);
+			TeleportEffect->Activate();
+		}
+		
 		ParabolicEffect->Activate();
 		ParabolicEffect->SetVectorParameter(FName("Start"), PathParams.StartLocation);
 		ParabolicEffect->SetVectorParameter(FName("End"), PathResult.HitResult.ImpactPoint);
-
-		TeleportEffect->Activate();
-		TeleportEffect->SetWorldLocation(PathResult.HitResult.ImpactPoint);
 
 		TeleportLocation = PathResult.HitResult.ImpactPoint;
 		bTeleport = true;
@@ -273,6 +297,7 @@ void AVRPawn::HandleTeleport()
 		TeleportLocation.Z = GetActorLocation().Z;
 		SetActorLocation(TeleportLocation);
 		bTeleport = false;
+		ToggleFixedPointsVisibility(false);
 		ParabolicEffect->DeactivateImmediate();
 		TeleportEffect->DeactivateImmediate();
 	}
