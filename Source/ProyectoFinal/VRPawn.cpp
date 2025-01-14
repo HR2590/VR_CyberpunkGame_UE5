@@ -24,7 +24,7 @@ AVRPawn::AVRPawn()
 	VRCamera->SetupAttachment(RootComponent);
 
 	VRHeadCollision = CreateDefaultSubobject<USphereComponent>(TEXT("HeadCollision"));
-	VRHeadCollision->SetSphereRadius(50.0f);
+	VRHeadCollision->SetSphereRadius(25.0f);
 	VRHeadCollision->SetCollisionProfileName(TEXT("OverlapAll"));
 	VRHeadCollision->SetupAttachment(VRCamera);
 
@@ -277,13 +277,14 @@ void AVRPawn::PerformParabolicRaycast()
 		{
 			TeleportEffect->SetWorldLocation(PathResult.HitResult.ImpactPoint);
 			TeleportEffect->Activate();
+			TeleportLocation = PathResult.HitResult.ImpactPoint;
 		}
 		
 		ParabolicEffect->Activate();
 		ParabolicEffect->SetVectorParameter(FName("Start"), PathParams.StartLocation);
 		ParabolicEffect->SetVectorParameter(FName("End"), PathResult.HitResult.ImpactPoint);
 
-		TeleportLocation = PathResult.HitResult.ImpactPoint;
+		
 		bTeleport = true;
 	}
 
