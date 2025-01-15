@@ -40,6 +40,7 @@ void APlatformTrigger::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActo
 	for (AMovingPlatform* Platform : PlatformsToTrigger)
 	{
 		Platform->AddActiveTrigger();
+		//UE_LOG(LogTemp, Warning, TEXT("Platform Trigger:: Active Trigger"));
 	}
 }
 
@@ -49,6 +50,7 @@ void APlatformTrigger::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor*
 	for (AMovingPlatform* Platform : PlatformsToTrigger)
 	{
 		Platform->RemoveActiveTrigger();
+		//UE_LOG(LogTemp, Warning, TEXT("Platform Trigger:: Remove Trigger"));
 	}
 }
 

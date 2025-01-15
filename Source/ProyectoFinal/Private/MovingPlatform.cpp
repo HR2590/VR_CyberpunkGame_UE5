@@ -21,7 +21,7 @@ void AMovingPlatform::BeginPlay()
 	}
 
 	GlobalStartLocation = GetActorLocation();
-	GlobalTargetLocation = GetTransform().TransformPosition(TargetLocation);
+	GlobalTargetLocation = GetTransform().InverseTransformPosition(TargetLocation);
 }
 
 void AMovingPlatform::Tick(float DeltaTime)
@@ -41,6 +41,7 @@ void AMovingPlatform::Tick(float DeltaTime)
 				FVector Swap = GlobalStartLocation;
 				GlobalStartLocation = GlobalTargetLocation;
 				GlobalTargetLocation = Swap;
+				
 			}
 
 			FVector Direction = (GlobalTargetLocation - GlobalStartLocation).GetSafeNormal();
