@@ -21,14 +21,14 @@ void AMovingPlatform::BeginPlay()
 	}
 
 	GlobalStartLocation = GetActorLocation();
-	GlobalTargetLocation = GetTransform().InverseTransformPosition(TargetLocation);
+	GlobalTargetLocation = GetTransform().TransformPosition(TargetLocation);
 }
 
 void AMovingPlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (ActiveTriggers > 0)
+	if (ActiveMovement)
 	{
 		if (HasAuthority())
 		{
@@ -53,13 +53,10 @@ void AMovingPlatform::Tick(float DeltaTime)
 
 void AMovingPlatform::AddActiveTrigger()
 {
-	ActiveTriggers++;
+	ActiveMovement = true;
 }
 
 void AMovingPlatform::RemoveActiveTrigger()
 {
-	if (ActiveTriggers > 0)
-	{
-		ActiveTriggers--;
-	}
+	ActiveMovement = false;
 }

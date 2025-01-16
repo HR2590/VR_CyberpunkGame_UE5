@@ -31,10 +31,12 @@ public:
 	void AddActiveTrigger();
 	void RemoveActiveTrigger();
 
+	UFUNCTION(BlueprintCallable, Category="MovingPlatform")
+	FORCEINLINE FVector GetTargetLocation() {return TargetLocation;}
 private:
 	FVector GlobalTargetLocation;
 	FVector GlobalStartLocation;
 
 	UPROPERTY(EditAnywhere)
-	int ActiveTriggers = 1;
+	bool ActiveMovement = true;
 };
