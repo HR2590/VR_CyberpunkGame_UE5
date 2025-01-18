@@ -258,7 +258,16 @@ void AVRPawn::PerformParabolicRaycast()
 	if (bHit)
 	{
 		AActor* HitActor = PathResult.HitResult.GetActor();
-
+		if (HitActor->Tags.Contains("Wall"))
+		{
+			bTeleport=false;
+			TeleportLocation=FVector(0.0f);
+			ParabolicEffect->DeactivateImmediate();
+			TeleportEffect->DeactivateImmediate();
+			
+			return;
+		}
+			
 		if (HitActor && HitActor->IsA<AStaticTeleportPlace>())
 		{
 			// Obtener el FixedPointActor
