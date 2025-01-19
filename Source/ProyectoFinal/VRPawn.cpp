@@ -23,7 +23,7 @@ AVRPawn::AVRPawn()
 	VRCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("VR_Camera"));
 	VRCamera->SetupAttachment(RootComponent);
 
-	VRHeadCollision = CreateDefaultSubobject<USphereComponent>(TEXT("HeadCollision"));
+		VRHeadCollision = CreateDefaultSubobject<USphereComponent>(TEXT("HeadCollision"));
 	VRHeadCollision->SetSphereRadius(25.0f);
 	VRHeadCollision->SetCollisionProfileName(TEXT("OverlapAll"));
 	VRHeadCollision->SetupAttachment(VRCamera);
